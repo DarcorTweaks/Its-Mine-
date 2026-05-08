@@ -3,62 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Printer 3D - Pro Suite</title>
+    <title>Its Mine Printer 3D - Pro Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent-orange: #ff8c00;
-            --accent-blue: #00d4ff;
+            --accent-pink: #ff69b4; /* Rosado brillante */
+            --accent-rose: #f43f5e; /* Rosa rojizo */
         }
         body {
-            background-color: #05070a;
+            background-color: #1a0a10; /* Fondo muy oscuro con un toque rosa */
             color: #ffffff;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-image: radial-gradient(circle at 2px 2px, rgba(0, 212, 255, 0.05) 1px, transparent 0);
-            background-size: 32px 32px;
+            /* Fondo de corazones sutil */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24"><path fill="rgba(255,105,180,0.04)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+            background-size: 60px 60px;
             padding-bottom: 100px;
         }
         .glass-panel {
-            background: rgba(10, 15, 25, 0.85);
+            background: rgba(30, 15, 20, 0.85);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(255, 105, 180, 0.15);
             border-radius: 24px;
         }
         .input-pro {
             background: rgba(255, 255, 255, 0.05) !important;
-            border: 2px solid rgba(0, 212, 255, 0.1) !important;
+            border: 2px solid rgba(255, 105, 180, 0.1) !important;
             color: white !important;
             transition: all 0.2s ease;
         }
         .input-pro:focus {
-            border-color: var(--accent-orange) !important;
+            border-color: var(--accent-pink) !important;
             outline: none;
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.2);
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.2);
         }
         .input-readonly {
-            background: rgba(0, 212, 255, 0.03) !important;
-            border: 2px dashed rgba(0, 212, 255, 0.2) !important;
-            color: var(--accent-blue) !important;
+            background: rgba(244, 63, 94, 0.03) !important;
+            border: 2px dashed rgba(244, 63, 94, 0.2) !important;
+            color: var(--accent-rose) !important;
             cursor: not-allowed;
             opacity: 0.8;
         }
         .nav-active {
-            color: var(--accent-orange);
-            background: rgba(255, 140, 0, 0.1);
+            color: var(--accent-pink);
+            background: rgba(255, 105, 180, 0.1);
             border-radius: 16px;
         }
         .price-card {
-            background: linear-gradient(145deg, #111 0%, #000 100%);
-            border: 2px solid var(--accent-orange);
-            box-shadow: 0 10px 40px rgba(255, 140, 0, 0.1);
+            background: linear-gradient(145deg, #18080f 0%, #000 100%);
+            border: 2px solid var(--accent-pink);
+            box-shadow: 0 10px 40px rgba(255, 105, 180, 0.15);
         }
         .page { display: none; }
         .page.active { display: block; }
         
         select.input-pro {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ff8c00'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ff69b4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 1rem center;
             background-size: 1.2em;
@@ -67,7 +68,7 @@
         /* Scrollbar personalizada */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,105,180,0.5); border-radius: 10px; }
         
         /* Indicador de conexión */
         #cloudStatus { transition: all 0.3s ease; }
@@ -76,14 +77,16 @@
 <body class="min-h-screen relative">
 
     <!-- Header Fijo -->
-    <header class="p-6 text-center sticky top-0 z-40 bg-[#05070a]/80 backdrop-blur-md border-b border-white/5">
-        <h1 class="text-xl font-black italic tracking-tighter uppercase flex items-center justify-center gap-2">
-            Ghost Printer <span class="text-orange-500 underline decoration-blue-500">3D</span>
-            <div id="cloudStatus" class="w-2 h-2 rounded-full bg-red-500 animate-pulse" title="Conectando a la nube..."></div>
+    <header class="p-6 text-center sticky top-0 z-40 bg-[#1a0a10]/80 backdrop-blur-md border-b border-pink-500/20 shadow-[0_4px_30px_rgba(255,105,180,0.1)]">
+        <h1 class="text-xl font-black italic tracking-tighter uppercase flex items-center justify-center gap-2 text-pink-500">
+            <!-- Corona SVG -->
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V18H19V19Z" /></svg>
+            Its Mine <span class="text-rose-400 underline decoration-pink-500">Printer 3D</span>
+            <div id="cloudStatus" class="w-2 h-2 rounded-full bg-red-500 animate-pulse ml-1" title="Conectando a la nube..."></div>
         </h1>
         <div class="flex items-center justify-center gap-3 mt-2">
-            <span class="text-[9px] font-bold text-gray-500 px-2 py-1 bg-white/5 rounded-md" id="bcvStatus">BCV: --</span>
-            <span class="text-[9px] font-bold text-yellow-500 px-2 py-1 bg-yellow-500/10 rounded-md" id="binanceStatus">BINANCE: --</span>
+            <span class="text-[9px] font-bold text-gray-400 px-2 py-1 bg-white/5 rounded-md border border-white/5" id="bcvStatus">BCV: --</span>
+            <span class="text-[9px] font-bold text-yellow-500 px-2 py-1 bg-yellow-500/10 rounded-md border border-yellow-500/20" id="binanceStatus">BINANCE: --</span>
         </div>
     </header>
 
@@ -92,32 +95,32 @@
         <!-- PESTAÑA 1: CALCULADORA -->
         <section id="calcPage" class="page active space-y-4">
             <div class="glass-panel p-6">
-                <h3 class="text-blue-400 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-blue-500 rounded-full"></span>
+                <h3 class="text-rose-400 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-rose-500 rounded-full"></span>
                     1. Datos Técnicos
                 </h3>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">Nombre de la pieza</label>
-                        <input type="text" id="jobName" placeholder="Ej: Engranaje Motor" class="input-pro w-full p-3 rounded-xl text-sm mt-1">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Nombre de la pieza</label>
+                        <input type="text" id="jobName" placeholder="Ej: Llavero de Corazón" class="input-pro w-full p-3 rounded-xl text-sm mt-1">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase">Peso (Gramos)</label>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Peso (Gramos)</label>
                             <input type="number" id="peso" placeholder="0" class="input-pro w-full p-3 rounded-xl font-bold mt-1 text-lg" oninput="calculate()">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase">Horas Máquina</label>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Horas Máquina</label>
                             <input type="number" id="horas" placeholder="0" class="input-pro w-full p-3 rounded-xl font-bold mt-1 text-lg" oninput="calculate()">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-[10px] font-bold text-gray-500 uppercase">Mano de Obra Extra ($)</label>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Mano de Obra Extra ($)</label>
                             <input type="number" id="postHrs" placeholder="0" class="input-pro w-full p-3 rounded-xl font-bold mt-1 text-lg" oninput="calculate()">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-blue-400/60 uppercase">Desgaste Base ($)</label>
+                            <label class="text-[10px] font-bold text-rose-400/60 uppercase">Desgaste Base ($)</label>
                             <input type="text" id="resWearAuto" value="$0.00" class="input-pro input-readonly w-full p-3 rounded-xl font-bold mt-1 text-lg" readonly>
                         </div>
                     </div>
@@ -125,8 +128,8 @@
             </div>
 
             <div class="glass-panel p-6">
-                <h3 class="text-orange-500 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-orange-500 rounded-full"></span>
+                <h3 class="text-pink-500 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-pink-500 rounded-full"></span>
                     2. Configuración
                 </h3>
                 <div class="grid grid-cols-1 gap-4">
@@ -141,14 +144,17 @@
                 </div>
             </div>
 
-            <div class="price-card p-8 rounded-[2rem] text-center shadow-2xl">
-                <p class="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-1">Precio Final</p>
-                <h2 class="text-6xl font-black text-white tracking-tighter" id="resTotalUSD">0.00</h2>
-                <div class="bg-blue-500/10 border border-blue-500/30 px-6 py-1 rounded-full mt-3 inline-block">
-                    <p class="text-blue-400 font-black text-xl" id="resTotalBS">Bs. 0.00</p>
+            <div class="price-card p-8 rounded-[2rem] text-center shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" class="text-pink-500"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                <p class="text-pink-500 text-[10px] font-black uppercase tracking-widest mb-1 relative z-10">Precio Final</p>
+                <h2 class="text-6xl font-black text-white tracking-tighter relative z-10" id="resTotalUSD">0.00</h2>
+                <div class="bg-rose-500/10 border border-rose-500/30 px-6 py-1 rounded-full mt-3 inline-block relative z-10">
+                    <p class="text-rose-400 font-black text-xl" id="resTotalBS">Bs. 0.00</p>
                 </div>
                 
-                <button onclick="goToSales()" class="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-600/20 active:scale-95">
+                <button onclick="goToSales()" class="w-full mt-6 bg-pink-600 hover:bg-pink-500 text-white p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-pink-600/30 active:scale-95 relative z-10">
                     Ir a Venta (Generar Ticket) →
                 </button>
             </div>
@@ -157,13 +163,13 @@
         <!-- PESTAÑA 2: INVENTARIO -->
         <section id="inventoryPage" class="page space-y-4">
             <div class="glass-panel p-6">
-                <h3 class="text-blue-400 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-blue-500 rounded-full"></span>
+                <h3 class="text-rose-400 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-rose-500 rounded-full"></span>
                     Agregar Material
                 </h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
-                        <input type="text" id="invName" placeholder="Ej: PLA Negro, Cajas Grandes" class="input-pro w-full p-3 rounded-xl text-sm">
+                        <input type="text" id="invName" placeholder="Ej: PLA Rosado, Bolsitas Lindas" class="input-pro w-full p-3 rounded-xl text-sm">
                     </div>
                     <div>
                         <input type="number" id="invQty" placeholder="Cant." class="input-pro w-full p-3 rounded-xl text-sm font-bold">
@@ -179,7 +185,7 @@
                         </select>
                     </div>
                     <div class="col-span-2">
-                        <button onclick="addInvItem()" class="w-full bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-[0_0_15px_rgba(0,212,255,0.3)]">
+                        <button onclick="addInvItem()" class="w-full bg-rose-600 hover:bg-rose-500 text-white p-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-[0_0_15px_rgba(244,63,94,0.3)]">
                             + Guardar en Nube
                         </button>
                     </div>
@@ -187,18 +193,18 @@
             </div>
 
             <div class="glass-panel p-6">
-                <h3 class="text-orange-500 text-[10px] font-black mb-4 tracking-widest uppercase">Mi Inventario Sincronizado</h3>
+                <h3 class="text-pink-500 text-[10px] font-black mb-4 tracking-widest uppercase">Mi Inventario Sincronizado</h3>
                 <div id="inventoryList" class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 pb-4"></div>
             </div>
         </section>
 
         <!-- PESTAÑA 3: VENTAS -->
         <section id="salesPage" class="page space-y-4">
-            <div class="bg-white/5 border border-white/10 rounded-3xl p-5 mb-4">
-                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Resumen de Cálculo</p>
+            <div class="bg-white/5 border border-white/10 rounded-3xl p-5 mb-4 shadow-[inset_0_0_20px_rgba(255,105,180,0.05)]">
+                <p class="text-[9px] font-bold text-pink-300 uppercase tracking-widest mb-2">Resumen de Cálculo</p>
                 <div class="flex justify-between items-center">
                     <div>
-                        <h4 class="text-lg font-black text-blue-400 uppercase tracking-tighter" id="summaryName">Nombre Pieza</h4>
+                        <h4 class="text-lg font-black text-rose-400 uppercase tracking-tighter" id="summaryName">Nombre Pieza</h4>
                         <p class="text-xs text-gray-400" id="summaryDetails">0g | 0h de impresión</p>
                     </div>
                     <div class="text-right">
@@ -208,34 +214,34 @@
             </div>
 
             <div class="glass-panel p-6">
-                <h3 class="text-orange-500 text-[10px] font-black mb-4 tracking-widest uppercase">Datos del Cliente</h3>
+                <h3 class="text-pink-500 text-[10px] font-black mb-4 tracking-widest uppercase">Datos del Cliente</h3>
                 <div class="space-y-4">
                     <input type="text" id="clientName" placeholder="Nombre del Cliente" class="input-pro w-full p-3 rounded-xl text-sm">
                     <input type="tel" id="clientPhone" placeholder="WhatsApp (Ej: 58412...)" class="input-pro w-full p-3 rounded-xl text-sm">
                 </div>
                 
                 <div class="grid grid-cols-1 gap-3 mt-8">
-                    <button onclick="generateWHTicket()" class="btn-action bg-green-600 hover:bg-green-700 text-white p-4 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2">Enviar WhatsApp</button>
-                    <button onclick="registerSale()" class="btn-action bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl text-[10px] font-black uppercase border border-white/10">Guardar Venta en la Nube</button>
+                    <button onclick="generateWHTicket()" class="btn-action bg-green-500 hover:bg-green-400 text-white p-4 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.2)]">Enviar WhatsApp</button>
+                    <button onclick="registerSale()" class="btn-action bg-pink-600/20 hover:bg-pink-600/40 text-pink-300 p-4 rounded-2xl text-[10px] font-black uppercase border border-pink-500/30">Guardar Venta en la Nube</button>
                 </div>
             </div>
 
             <div class="glass-panel p-6">
-                <h3 class="text-gray-500 text-[10px] font-black mb-4 uppercase">Historial (Nube)</h3>
+                <h3 class="text-gray-400 text-[10px] font-black mb-4 uppercase">Historial (Nube)</h3>
                 <div id="salesList" class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 pb-4"></div>
             </div>
         </section>
 
         <!-- PESTAÑA 4: GASTOS -->
         <section id="expensesPage" class="page space-y-4">
-            <div class="glass-panel p-6 space-y-4 border border-red-500/20">
-                <h3 class="text-red-500 text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-red-500 rounded-full"></span>
+            <div class="glass-panel p-6 space-y-4 border border-rose-500/30">
+                <h3 class="text-rose-500 text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-rose-500 rounded-full"></span>
                     Registrar Nuevo Gasto / Retiro
                 </h3>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="col-span-2">
-                        <input type="text" id="expDesc" placeholder="Concepto (Ej: Pago Delivery, Compré PLA)" class="input-pro w-full p-3 rounded-xl text-sm">
+                        <input type="text" id="expDesc" placeholder="Concepto (Ej: Material, Caja de envío)" class="input-pro w-full p-3 rounded-xl text-sm">
                     </div>
                     <div>
                         <input type="number" id="expAmount" placeholder="Monto ($)" class="input-pro w-full p-3 rounded-xl text-sm font-bold">
@@ -248,7 +254,7 @@
                         </select>
                     </div>
                     <div class="col-span-2">
-                        <button onclick="addExpense()" class="w-full bg-red-600/90 hover:bg-red-500 text-white p-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+                        <button onclick="addExpense()" class="w-full bg-rose-600/90 hover:bg-rose-500 text-white p-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-[0_0_15px_rgba(244,63,94,0.3)]">
                             - Descontar y Guardar en Nube
                         </button>
                     </div>
@@ -256,7 +262,7 @@
             </div>
 
             <div class="glass-panel p-6">
-                <h3 class="text-gray-500 text-[10px] font-black mb-4 uppercase">Gastos en la Nube</h3>
+                <h3 class="text-gray-400 text-[10px] font-black mb-4 uppercase">Gastos en la Nube</h3>
                 <div id="expensesList" class="space-y-2 mt-4 max-h-[50vh] overflow-y-auto pr-2"></div>
             </div>
         </section>
@@ -264,17 +270,17 @@
         <!-- PESTAÑA 5: ADMIN -->
         <section id="adminPage" class="page space-y-4">
             <div class="grid grid-cols-2 gap-4">
-                <div class="glass-panel p-5 border-l-4 border-blue-500">
-                    <p class="text-[9px] font-bold text-gray-500 uppercase">Ventas Totales</p>
-                    <p class="text-2xl font-black" id="totalSalesUSD">$0.00</p>
+                <div class="glass-panel p-5 border-l-4 border-pink-500">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Ventas Totales</p>
+                    <p class="text-2xl font-black text-white" id="totalSalesUSD">$0.00</p>
                 </div>
                 <div class="glass-panel p-5 border-l-4 border-green-500">
-                    <p class="text-[9px] font-bold text-gray-500 uppercase">Ganancia Limpia</p>
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Ganancia Limpia</p>
                     <p class="text-2xl font-black text-green-400" id="netProfitUSD">$0.00</p>
                 </div>
-                <div class="glass-panel p-5 border-l-4 border-red-500 col-span-2">
-                    <p class="text-[9px] font-bold text-gray-500 uppercase">Total Gastos (Retiros)</p>
-                    <p class="text-2xl font-black text-red-400" id="totalExpensesUSD">$0.00</p>
+                <div class="glass-panel p-5 border-l-4 border-rose-500 col-span-2">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Total Gastos (Retiros)</p>
+                    <p class="text-2xl font-black text-rose-400" id="totalExpensesUSD">$0.00</p>
                 </div>
             </div>
 
@@ -284,15 +290,15 @@
                     Saldos Disponibles (Sincronizado)
                 </h3>
                 <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <span class="text-blue-300 font-bold uppercase text-[10px]">Saldo Fondo Material</span>
+                    <span class="text-rose-300 font-bold uppercase text-[10px]">Saldo Fondo Material</span>
                     <span class="font-black text-lg" id="fundMaterial">$0.00</span>
                 </div>
                 <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <span class="text-orange-300 font-bold uppercase text-[10px]">Saldo Fondo Máquina</span>
+                    <span class="text-pink-300 font-bold uppercase text-[10px]">Saldo Fondo Máquina</span>
                     <span class="font-black text-lg" id="fundMachine">$0.00</span>
                 </div>
                 <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                    <span class="text-gray-400 font-bold uppercase text-[10px]">🚚 Logística / Envío Disp.</span>
+                    <span class="text-gray-300 font-bold uppercase text-[10px]">🚚 Logística / Envío Disp.</span>
                     <span class="font-black text-lg" id="fundDelivery">$0.00</span>
                 </div>
             </div>
@@ -313,11 +319,11 @@
                         + Guardar
                     </button>
                 </div>
-                <button onclick="clearSavings()" class="w-full text-center text-[9px] text-gray-600 hover:text-red-400 uppercase font-bold mt-2">Reiniciar Ahorro</button>
+                <button onclick="clearSavings()" class="w-full text-center text-[9px] text-gray-500 hover:text-rose-400 uppercase font-bold mt-2">Reiniciar Ahorro</button>
             </div>
 
             <div class="glass-panel p-6">
-                <h3 class="text-yellow-500 text-[10px] font-black mb-4 uppercase">Configuración</h3>
+                <h3 class="text-yellow-400 text-[10px] font-black mb-4 uppercase">Configuración</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <input type="number" id="manualRate" class="input-pro w-full p-3 rounded-xl text-sm font-bold" oninput="updateRates()">
                     <input type="number" id="binanceRateManual" class="input-pro w-full p-3 rounded-xl text-sm font-bold" oninput="updateRates()">
@@ -337,13 +343,13 @@
                     </div>
                 </div>
             </div>
-            <button onclick="clearSales()" class="w-full p-3 text-[10px] text-red-500 font-black uppercase hover:bg-red-500/5 rounded-xl transition-all border border-red-500/20">🚨 Borrar Todo de la Nube</button>
+            <button onclick="clearSales()" class="w-full p-3 text-[10px] text-rose-500 font-black uppercase hover:bg-rose-500/10 rounded-xl transition-all border border-rose-500/20">🚨 Borrar Todo de la Nube</button>
         </section>
 
     </main>
 
     <!-- Nav de 5 Botones -->
-    <nav class="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 rounded-none rounded-t-[2rem] flex justify-between px-3 py-4 z-50">
+    <nav class="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 rounded-none rounded-t-[2rem] flex justify-between px-3 py-4 z-50 bg-[#1a0a10]/95">
         <button onclick="showPage('calc')" id="btnCalc" class="flex flex-col items-center gap-1 p-1 w-[20%] nav-active">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2zM8 9h0M12 9h0M16 9h0M8 13h0M12 13h0M16 13h0"></path></svg>
             <span class="text-[7.5px] font-black uppercase">Cálculo</span>
@@ -372,32 +378,26 @@
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        /* ==========================================
-           1. CONFIGURACIÓN DE FIREBASE (¡ATENCIÓN AQUÍ!)
-           ========================================== 
-           Cuando subas esto a Github, borra lo que está dentro de 
-           "firebaseConfig = { ... }" y pega la configuración que 
-           te da Firebase al crear tu proyecto.
-        */
         let firebaseConfig;
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config); 
         } else {
-            // === PON TUS CREDENCIALES DE FIREBASE AQUÍ ===
+            // === CREDENCIALES DE FIREBASE ITS MINE PRINTER 3D ===
             firebaseConfig = {
-                apiKey: "TU_API_KEY",
-                authDomain: "TU_PROYECTO.firebaseapp.com",
-                projectId: "TU_PROYECTO",
-                storageBucket: "TU_PROYECTO.appspot.com",
-                messagingSenderId: "TUS_DATOS",
-                appId: "TUS_DATOS"
+                apiKey: "AIzaSyAmP2L1uVWOurAmic3A8eIecRPD6iv3FaA",
+                authDomain: "its-mine-printer3d.firebaseapp.com",
+                projectId: "its-mine-printer3d",
+                storageBucket: "its-mine-printer3d.firebasestorage.app",
+                messagingSenderId: "460313004830",
+                appId: "1:460313004830:web:bcc7590dcf23722396170f",
+                measurementId: "G-G382SFCL8E"
             };
         }
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const canvasAppId = typeof __app_id !== 'undefined' ? __app_id : 'mi-calculadora-3d';
+        const canvasAppId = typeof __app_id !== 'undefined' ? __app_id : 'its-mine-printer-3d';
         let currentUserId = null;
 
         // Variables de memoria
@@ -590,7 +590,7 @@
             
             try {
                 await setDoc(doc(getColPath('ventas'), saleId), sale);
-                showToast("✅ Venta Guardada en la Nube");
+                showToast("💖 Venta Guardada en la Nube");
                 
                 const fields = ['clientName', 'clientPhone', 'jobName', 'peso', 'horas', 'postHrs', 'delivery'];
                 fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
@@ -649,7 +649,7 @@
                 });
                 document.getElementById('expDesc').value = '';
                 document.getElementById('expAmount').value = '';
-                showToast("✅ Gasto guardado en la nube");
+                showToast("💖 Gasto guardado en la nube");
             } catch(e) { console.error(e); }
         };
 
@@ -678,7 +678,7 @@
             document.getElementById('invName').value = '';
             document.getElementById('invQty').value = '';
             document.getElementById('invPrice').value = '';
-            showToast("✅ Inventario subido a la nube");
+            showToast("💖 Inventario subido a la nube");
         };
 
         window.updateInvQty = async function(id, delta) {
@@ -721,7 +721,7 @@
             const newTotal = totalSavedUSDT + val;
             await setDoc(doc(getColPath('config'), 'ahorros'), { total: newTotal });
             document.getElementById('usdtInput').value = '';
-            showToast("✅ USDT Ahorrado en la nube");
+            showToast("💖 USDT Ahorrado en la nube");
         };
 
         window.clearSavings = async function() {
@@ -746,18 +746,18 @@
         function renderSales() {
             const list = document.getElementById('salesList');
             if (!list) return;
-            if (salesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-600 text-[10px] py-10 font-bold uppercase">Sin registros en la nube</p>'; return; }
+            if (salesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-500 text-[10px] py-10 font-bold uppercase">Sin registros en la nube</p>'; return; }
             list.innerHTML = salesHistory.map(s => `
                 <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center mb-2">
                     <div class="flex-1">
-                        <p class="text-[11px] font-black uppercase text-orange-500">${s.client}</p>
-                        <p class="text-[9px] text-blue-400 font-bold mb-1">${s.job}</p>
+                        <p class="text-[11px] font-black uppercase text-pink-500">${s.client}</p>
+                        <p class="text-[9px] text-rose-400 font-bold mb-1">${s.job}</p>
                         <p class="text-[8px] text-gray-500 font-bold">${s.date}</p>
                     </div>
                     <div class="flex flex-col items-end gap-2">
                         <p class="text-sm font-black text-white">$${s.usd.toFixed(2)}</p>
                         <div class="flex gap-2">
-                            <button onclick="editSale('${s.id}')" class="text-[9px] bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-lg font-bold uppercase tracking-widest hover:bg-blue-600/40 transition-colors">Editar</button>
+                            <button onclick="editSale('${s.id}')" class="text-[9px] bg-pink-600/20 text-pink-400 px-3 py-1.5 rounded-lg font-bold uppercase tracking-widest hover:bg-pink-600/40 transition-colors">Editar</button>
                             <button onclick="deleteSale('${s.id}')" class="text-[10px] bg-red-600/20 text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-600/40 transition-colors">🗑️</button>
                         </div>
                     </div>
@@ -768,7 +768,7 @@
         function renderExpenses() {
             const list = document.getElementById('expensesList');
             if(!list) return;
-            if(expensesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-600 text-[9px] py-4 font-bold uppercase">Sin gastos registrados</p>'; return; }
+            if(expensesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-500 text-[9px] py-4 font-bold uppercase">Sin gastos registrados</p>'; return; }
             list.innerHTML = expensesHistory.map(e => {
                 let catName = e.category === 'mat' ? 'Fondo Material' : (e.category === 'machine' ? 'Fondo Máquina' : 'Fondo Envío');
                 return `
@@ -778,7 +778,7 @@
                         <p class="text-[9px] text-gray-500 uppercase mt-0.5">${catName} | ${e.date}</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="text-[12px] font-black text-red-400">-$${e.amount.toFixed(2)}</span>
+                        <span class="text-[12px] font-black text-rose-400">-$${e.amount.toFixed(2)}</span>
                         <button onclick="deleteExpense('${e.id}')" class="text-[10px] bg-red-500/10 text-red-500 hover:bg-red-500/20 px-2 py-1.5 rounded-lg transition-colors">🗑️</button>
                     </div>
                 </div>
@@ -788,9 +788,9 @@
         function renderInventory() {
             const list = document.getElementById('inventoryList');
             if(!list) return;
-            if(inventoryData.length === 0) { list.innerHTML = '<p class="text-center text-gray-600 text-[10px] py-10 font-bold uppercase tracking-widest">Inventario Vacío</p>'; return; }
+            if(inventoryData.length === 0) { list.innerHTML = '<p class="text-center text-gray-500 text-[10px] py-10 font-bold uppercase tracking-widest">Inventario Vacío</p>'; return; }
             list.innerHTML = inventoryData.map(i => {
-                let colorClass = i.type === 'PLA' ? 'text-blue-400' : (i.type === 'Empaque' ? 'text-orange-400' : 'text-gray-400');
+                let colorClass = i.type === 'PLA' ? 'text-pink-400' : (i.type === 'Empaque' ? 'text-rose-400' : 'text-gray-400');
                 const priceText = i.price ? ` | $${i.price.toFixed(2)}` : '';
                 return `
                 <div class="p-3 bg-white/5 rounded-2xl border border-white/5 flex flex-col gap-2 mb-2">
@@ -801,15 +801,15 @@
                             <p class="text-[8px] text-gray-500 font-bold mt-0.5">Comprado: ${i.date || 'Sin fecha'}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="editInvItem('${i.id}')" class="text-[9px] bg-blue-600/20 text-blue-400 px-2 py-1.5 rounded-lg font-bold uppercase hover:bg-blue-600/40 transition-colors">Editar</button>
+                            <button onclick="editInvItem('${i.id}')" class="text-[9px] bg-pink-600/20 text-pink-400 px-2 py-1.5 rounded-lg font-bold uppercase hover:bg-pink-600/40 transition-colors">Editar</button>
                             <button onclick="deleteInvItem('${i.id}')" class="text-[10px] bg-red-600/20 text-red-400 px-2 py-1.5 rounded-lg hover:bg-red-600/40 transition-colors">🗑️</button>
                         </div>
                     </div>
                     <div class="flex justify-end mt-1">
                         <div class="flex items-center bg-black/40 rounded-xl border border-white/5 w-fit">
-                            <button onclick="updateInvQty('${i.id}', -1)" class="px-3 py-1.5 text-red-400 hover:bg-red-500/20 rounded-l-xl font-bold text-lg leading-none">-</button>
+                            <button onclick="updateInvQty('${i.id}', -1)" class="px-3 py-1.5 text-rose-400 hover:bg-rose-500/20 rounded-l-xl font-bold text-lg leading-none">-</button>
                             <span class="text-sm font-black text-white w-8 text-center">${i.qty}</span>
-                            <button onclick="updateInvQty('${i.id}', 1)" class="px-3 py-1.5 text-green-400 hover:bg-green-500/20 rounded-r-xl font-bold text-lg leading-none">+</button>
+                            <button onclick="updateInvQty('${i.id}', 1)" class="px-3 py-1.5 text-pink-400 hover:bg-pink-500/20 rounded-r-xl font-bold text-lg leading-none">+</button>
                         </div>
                     </div>
                 </div>
@@ -855,6 +855,19 @@
             if (fDeliv) fDeliv.innerHTML = `<span class="${currentDeliv < 0 ? 'text-red-500' : ''}">$${currentDeliv.toFixed(2)}</span>`;
             
             if (fSaved) fSaved.innerText = `$${totalSavedUSDT.toFixed(2)}`;
+        }
+
+        window.generateWHTicket = function() {
+            const client = document.getElementById('clientName')?.value;
+            // Nuevo ticket de WhatsApp con nombre cambiado y logo
+            const text = `*👑 PRESUPUESTO ITS MINE PRINTER 3D 👑*\n\n*Cliente:* ${client || 'Amigo'}\n*Proyecto:* ${currentCalc.jobName}\n*Monto:* $${currentCalc.usd.toFixed(2)}\n*Bolívares:* ${currentCalc.bs.toLocaleString('es-VE')} (Binance)\n\n_Válido por 24h_`;
+            const phone = (document.getElementById('clientPhone')?.value || "").replace(/\D/g, '');
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            if (t) { t.innerText = msg; t.style.opacity = "1"; setTimeout(() => t.style.opacity = "0", 3000); }
         }
 
         getRates();
