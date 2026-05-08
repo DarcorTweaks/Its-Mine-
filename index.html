@@ -2,266 +2,862 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Its Mine MASTER v14.0 👑</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Printer 3D - Pro Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-        :root { --its-pink: #f472b6; --its-dark: #050505; }
-        body { 
-            background-color: var(--its-dark); color: #ffffff; font-family: 'Inter', sans-serif; margin: 0;
-            background-image: radial-gradient(circle at 50% 0%, rgba(244, 114, 182, 0.15) 0%, transparent 50%);
-            background-attachment: fixed;
+        :root {
+            --accent-orange: #ff8c00;
+            --accent-blue: #00d4ff;
         }
-        .card-pro { background: rgba(20, 20, 25, 0.95); border: 1px solid rgba(244, 114, 182, 0.2); border-radius: 24px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(10px); }
-        .btn-main { background: linear-gradient(135deg, #f472b6 0%, #db2777 100%); color: white; padding: 16px; border-radius: 18px; width: 100%; font-weight: 900; text-transform: uppercase; cursor: pointer; border: none; font-size: 13px; }
-        input, select, textarea { background: rgba(255,255,255,0.05); border: 1px solid rgba(244, 114, 182, 0.2); color: white; padding: 14px; border-radius: 14px; width: 100%; margin: 6px 0; outline: none; font-size: 14px; }
+        body {
+            background-color: #05070a;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: radial-gradient(circle at 2px 2px, rgba(0, 212, 255, 0.05) 1px, transparent 0);
+            background-size: 32px 32px;
+            padding-bottom: 100px;
+        }
+        .glass-panel {
+            background: rgba(10, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 24px;
+        }
+        .input-pro {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 2px solid rgba(0, 212, 255, 0.1) !important;
+            color: white !important;
+            transition: all 0.2s ease;
+        }
+        .input-pro:focus {
+            border-color: var(--accent-orange) !important;
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.2);
+        }
+        .input-readonly {
+            background: rgba(0, 212, 255, 0.03) !important;
+            border: 2px dashed rgba(0, 212, 255, 0.2) !important;
+            color: var(--accent-blue) !important;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        .nav-active {
+            color: var(--accent-orange);
+            background: rgba(255, 140, 0, 0.1);
+            border-radius: 16px;
+        }
+        .price-card {
+            background: linear-gradient(145deg, #111 0%, #000 100%);
+            border: 2px solid var(--accent-orange);
+            box-shadow: 0 10px 40px rgba(255, 140, 0, 0.1);
+        }
+        .page { display: none; }
+        .page.active { display: block; }
         
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: #080808; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(244, 114, 182, 0.2); z-index: 1000; padding-bottom: 10px; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #6b7280; font-size: 10px; font-weight: 800; flex: 1; cursor: pointer; }
-        .nav-item.active { color: var(--its-pink); }
-        .nav-item span:first-child { font-size: 30px; margin-bottom: 2px; }
+        select.input-pro {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ff8c00'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+        }
 
-        .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--its-pink); margin: 0 8px; }
-        .pin-dot.filled { background: var(--its-pink); box-shadow: 0 0 15px var(--its-pink); }
-        .key-btn { background: rgba(255,255,255,0.03); color: white; width: 75px; height: 75px; border-radius: 50%; font-size: 24px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.5); border-radius: 10px; }
         
-        .receipt-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        /* Indicador de conexión */
+        #cloudStatus { transition: all 0.3s ease; }
     </style>
 </head>
-<body>
+<body class="min-h-screen relative">
 
-<div id="app" class="px-4 pb-32 max-w-lg mx-auto pt-4"></div>
-
-<nav class="bottom-nav" id="navMain" style="display:none;">
-    <div onclick="setView('inicio')" class="nav-item active" id="n-inicio"><span>📊</span><span>DATA</span></div>
-    <div onclick="setView('ventas')" class="nav-item" id="n-ventas"><span>💖</span><span>VENTAS</span></div>
-    <div onclick="setView('stock')" class="nav-item" id="n-stock"><span>📦</span><span>STOCK</span></div>
-    <div onclick="setView('compras')" class="nav-item" id="n-compras"><span>🛒</span><span>COMPRAS</span></div>
-    <div onclick="setView('gastos')" class="nav-item" id="n-gastos"><span>💸</span><span>GASTOS</span></div>
-</nav>
-
-<div id="receiptModal" class="receipt-modal">
-    <div class="bg-white text-black p-6 rounded-3xl w-full max-w-sm shadow-2xl">
-        <div id="receiptContent" class="font-mono text-[10px] leading-tight"></div>
-        <div class="mt-6 flex gap-2">
-            <button onclick="closeReceipt()" class="flex-1 bg-gray-200 p-3 rounded-xl font-bold">Cerrar</button>
-            <button onclick="shareReceipt()" class="flex-1 bg-pink-500 text-white p-3 rounded-xl font-bold text-xs">WhatsApp</button>
+    <!-- Header Fijo -->
+    <header class="p-6 text-center sticky top-0 z-40 bg-[#05070a]/80 backdrop-blur-md border-b border-white/5">
+        <h1 class="text-xl font-black italic tracking-tighter uppercase flex items-center justify-center gap-2">
+            Ghost Printer <span class="text-orange-500 underline decoration-blue-500">3D</span>
+            <div id="cloudStatus" class="w-2 h-2 rounded-full bg-red-500 animate-pulse" title="Conectando a la nube..."></div>
+        </h1>
+        <div class="flex items-center justify-center gap-3 mt-2">
+            <span class="text-[9px] font-bold text-gray-500 px-2 py-1 bg-white/5 rounded-md" id="bcvStatus">BCV: --</span>
+            <span class="text-[9px] font-bold text-yellow-500 px-2 py-1 bg-yellow-500/10 rounded-md" id="binanceStatus">BINANCE: --</span>
         </div>
-    </div>
-</div>
+    </header>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-<script>
-    const firebaseConfig = { apiKey: "AIzaSyBCm5JlhTxvvtlwjA1EYEtLvxb1AH5v1WI", authDomain: "ghost-print-contabilidad.firebaseapp.com", projectId: "ghost-print-contabilidad", storageBucket: "ghost-print-contabilidad.firebasestorage.app", messagingSenderId: "867057362556", appId: "1:867057362556:web:6bd2a461817219a4000bf9" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const docRef = db.collection("sistema").doc("its_mine_v14_final_pro_fix");
-
-    window.state = { 
-        ventas: [], inventario: {}, gastos: [], ahorroUSDT: [], 
-        servicios: ["IMPRESIÓN 3D", "BISUTERÍA"], materialesBase: ["PLA", "PERLAS"], 
-        tasaBCV: 45.0
-    };
-
-    window.isUnlocked = false; window.currentPin = ""; window.currentView = "inicio";
-
-    const sync = async () => { await docRef.set(window.state); render(); };
-    docRef.onSnapshot(doc => { if(doc.exists) { window.state = doc.data(); render(); } });
-
-    window.sincronizarBCV = async function() {
-        try {
-            const response = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
-            const data = await response.json();
-            if(data && data.promedio) { window.state.tasaBCV = parseFloat(data.promedio); await sync(); alert("BCV Actualizado"); }
-        } catch (e) { alert("Error API"); }
-    };
-
-    window.handleKey = (k) => {
-        if(k === 'C') window.currentPin = "";
-        else if(k === 'OK') { if(window.currentPin === "2210") { window.isUnlocked = true; document.getElementById('navMain').style.display='flex'; render(); } else { alert("PIN INCORRECTO"); window.currentPin = ""; render(); } }
-        else if(window.currentPin.length < 4) window.currentPin += k;
-        render();
-    };
-
-    window.setView = (v) => { window.currentView = v; document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active')); document.getElementById('n-'+v).classList.add('active'); render(); };
-
-    const render = () => {
-        const app = document.getElementById("app");
-        if(!window.isUnlocked) {
-            app.innerHTML = `
-                <div class="flex flex-col items-center justify-center min-h-[85vh]">
-                    <div class="text-9xl mb-6 drop-shadow-[0_0_20px_rgba(244,114,182,0.4)]">👑</div>
-                    <h1 class="text-4xl font-black italic text-white uppercase tracking-widest mb-12 text-center leading-none">ITS MINE</h1>
-                    <div class="flex mb-12">${[1,2,3,4].map((_,i) => `<div class="pin-dot ${i<window.currentPin.length?'filled':''}"></div>`).join('')}</div>
-                    <div class="grid grid-cols-3 gap-6">
-                        ${[1,2,3,4,5,6,7,8,9, 'C', 0, 'OK'].map(k => `<button onclick="handleKey('${k}')" class="key-btn">${k}</button>`).join('')}
+    <main class="max-w-md mx-auto px-4 mt-6">
+        
+        <!-- PESTAÑA 1: CALCULADORA -->
+        <section id="calcPage" class="page active space-y-4">
+            <div class="glass-panel p-6">
+                <h3 class="text-blue-400 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-blue-500 rounded-full"></span>
+                    1. Datos Técnicos
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Nombre de la pieza</label>
+                        <input type="text" id="jobName" placeholder="Ej: Engranaje Motor" class="input-pro w-full p-3 rounded-xl text-sm mt-1">
                     </div>
-                </div>`;
-            return;
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Peso (Gramos)</label>
+                            <input type="number" id="peso" placeholder="0" class="input-pro w-full p-3 rounded-xl font-bold mt-1 text-lg" oninput="calculate()">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Horas Máquina</label>
+                            <input type="number" id="horas" placeholder="0" class="input-pro w-full p-3 rounded-xl font-bold mt-1 text-lg" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Mano de Obra Extra ($)</label>
+                            <input type="number" id="postHrs" placeholder="0" class="input-pro w-full p-3 rounded-xl font-bold mt-1 text-lg" oninput="calculate()">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-blue-400/60 uppercase">Desgaste Base ($)</label>
+                            <input type="text" id="resWearAuto" value="$0.00" class="input-pro input-readonly w-full p-3 rounded-xl font-bold mt-1 text-lg" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-orange-500 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-orange-500 rounded-full"></span>
+                    2. Configuración
+                </h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <select id="disenoSelect" class="input-pro w-full p-4 rounded-xl font-bold text-sm" onchange="calculate()">
+                        <option value="0">Diseño Gratis (STL Listo) - $0</option>
+                        <option value="5">Simple (Llaveros/Nombres) - $5</option>
+                        <option value="12">Medio (Edición STL) - $12</option>
+                        <option value="25">Avanzado (Modelado propio) - $25</option>
+                        <option value="50">Ingeniería (Pieza Técnica) - $50</option>
+                    </select>
+                    <input type="number" id="delivery" placeholder="Logística / Envío ($)" class="input-pro w-full p-3 rounded-xl font-bold" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="price-card p-8 rounded-[2rem] text-center shadow-2xl">
+                <p class="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-1">Precio Final</p>
+                <h2 class="text-6xl font-black text-white tracking-tighter" id="resTotalUSD">0.00</h2>
+                <div class="bg-blue-500/10 border border-blue-500/30 px-6 py-1 rounded-full mt-3 inline-block">
+                    <p class="text-blue-400 font-black text-xl" id="resTotalBS">Bs. 0.00</p>
+                </div>
+                
+                <button onclick="goToSales()" class="w-full mt-6 bg-orange-600 hover:bg-orange-700 text-white p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-600/20 active:scale-95">
+                    Ir a Venta (Generar Ticket) →
+                </button>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: INVENTARIO -->
+        <section id="inventoryPage" class="page space-y-4">
+            <div class="glass-panel p-6">
+                <h3 class="text-blue-400 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-blue-500 rounded-full"></span>
+                    Agregar Material
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <input type="text" id="invName" placeholder="Ej: PLA Negro, Cajas Grandes" class="input-pro w-full p-3 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <input type="number" id="invQty" placeholder="Cant." class="input-pro w-full p-3 rounded-xl text-sm font-bold">
+                    </div>
+                    <div>
+                        <input type="number" id="invPrice" placeholder="Precio ($)" class="input-pro w-full p-3 rounded-xl text-sm font-bold">
+                    </div>
+                    <div class="col-span-2">
+                        <select id="invType" class="input-pro w-full p-3 rounded-xl text-sm font-bold">
+                            <option value="PLA">Rollo PLA</option>
+                            <option value="Empaque">Bolsa / Caja</option>
+                            <option value="Otro">Otro Insumo</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <button onclick="addInvItem()" class="w-full bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-[0_0_15px_rgba(0,212,255,0.3)]">
+                            + Guardar en Nube
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-orange-500 text-[10px] font-black mb-4 tracking-widest uppercase">Mi Inventario Sincronizado</h3>
+                <div id="inventoryList" class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 pb-4"></div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 3: VENTAS -->
+        <section id="salesPage" class="page space-y-4">
+            <div class="bg-white/5 border border-white/10 rounded-3xl p-5 mb-4">
+                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Resumen de Cálculo</p>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h4 class="text-lg font-black text-blue-400 uppercase tracking-tighter" id="summaryName">Nombre Pieza</h4>
+                        <p class="text-xs text-gray-400" id="summaryDetails">0g | 0h de impresión</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl font-black text-white" id="summaryUSD">$0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-orange-500 text-[10px] font-black mb-4 tracking-widest uppercase">Datos del Cliente</h3>
+                <div class="space-y-4">
+                    <input type="text" id="clientName" placeholder="Nombre del Cliente" class="input-pro w-full p-3 rounded-xl text-sm">
+                    <input type="tel" id="clientPhone" placeholder="WhatsApp (Ej: 58412...)" class="input-pro w-full p-3 rounded-xl text-sm">
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3 mt-8">
+                    <button onclick="generateWHTicket()" class="btn-action bg-green-600 hover:bg-green-700 text-white p-4 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2">Enviar WhatsApp</button>
+                    <button onclick="registerSale()" class="btn-action bg-white/10 hover:bg-white/20 text-white p-4 rounded-2xl text-[10px] font-black uppercase border border-white/10">Guardar Venta en la Nube</button>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-gray-500 text-[10px] font-black mb-4 uppercase">Historial (Nube)</h3>
+                <div id="salesList" class="space-y-3 max-h-[50vh] overflow-y-auto pr-2 pb-4"></div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 4: GASTOS -->
+        <section id="expensesPage" class="page space-y-4">
+            <div class="glass-panel p-6 space-y-4 border border-red-500/20">
+                <h3 class="text-red-500 text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-red-500 rounded-full"></span>
+                    Registrar Nuevo Gasto / Retiro
+                </h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <input type="text" id="expDesc" placeholder="Concepto (Ej: Pago Delivery, Compré PLA)" class="input-pro w-full p-3 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <input type="number" id="expAmount" placeholder="Monto ($)" class="input-pro w-full p-3 rounded-xl text-sm font-bold">
+                    </div>
+                    <div>
+                        <select id="expCategory" class="input-pro w-full p-3 rounded-xl text-sm font-bold">
+                            <option value="mat">Fondo Material</option>
+                            <option value="machine">Fondo Máquina</option>
+                            <option value="delivery">Fondo Envíos</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <button onclick="addExpense()" class="w-full bg-red-600/90 hover:bg-red-500 text-white p-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+                            - Descontar y Guardar en Nube
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-gray-500 text-[10px] font-black mb-4 uppercase">Gastos en la Nube</h3>
+                <div id="expensesList" class="space-y-2 mt-4 max-h-[50vh] overflow-y-auto pr-2"></div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 5: ADMIN -->
+        <section id="adminPage" class="page space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass-panel p-5 border-l-4 border-blue-500">
+                    <p class="text-[9px] font-bold text-gray-500 uppercase">Ventas Totales</p>
+                    <p class="text-2xl font-black" id="totalSalesUSD">$0.00</p>
+                </div>
+                <div class="glass-panel p-5 border-l-4 border-green-500">
+                    <p class="text-[9px] font-bold text-gray-500 uppercase">Ganancia Limpia</p>
+                    <p class="text-2xl font-black text-green-400" id="netProfitUSD">$0.00</p>
+                </div>
+                <div class="glass-panel p-5 border-l-4 border-red-500 col-span-2">
+                    <p class="text-[9px] font-bold text-gray-500 uppercase">Total Gastos (Retiros)</p>
+                    <p class="text-2xl font-black text-red-400" id="totalExpensesUSD">$0.00</p>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 space-y-4 text-sm">
+                <h3 class="text-white text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-white rounded-full"></span>
+                    Saldos Disponibles (Sincronizado)
+                </h3>
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <span class="text-blue-300 font-bold uppercase text-[10px]">Saldo Fondo Material</span>
+                    <span class="font-black text-lg" id="fundMaterial">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <span class="text-orange-300 font-bold uppercase text-[10px]">Saldo Fondo Máquina</span>
+                    <span class="font-black text-lg" id="fundMachine">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <span class="text-gray-400 font-bold uppercase text-[10px]">🚚 Logística / Envío Disp.</span>
+                    <span class="font-black text-lg" id="fundDelivery">$0.00</span>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 space-y-4">
+                <h3 class="text-green-500 text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2">
+                    <span class="w-1.5 h-4 bg-green-500 rounded-full"></span>
+                    Mi Ahorro (USDT Binance)
+                </h3>
+                <div class="flex justify-between items-center bg-green-500/10 p-4 rounded-2xl border border-green-500/30">
+                    <span class="text-green-400 font-bold uppercase text-[10px]">Total Ahorrado</span>
+                    <span class="font-black text-2xl text-green-400" id="totalSavedUSDT">$0.00</span>
+                </div>
+                <p class="text-[8px] text-gray-500 text-center uppercase tracking-widest">Ahorro seguro en la nube</p>
+                <div class="flex gap-2">
+                    <input type="number" id="usdtInput" placeholder="Monto $" class="input-pro w-full p-3 rounded-xl text-sm font-bold">
+                    <button onclick="addSavings()" class="bg-green-600 hover:bg-green-500 text-white px-4 rounded-xl text-[10px] font-black uppercase transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                        + Guardar
+                    </button>
+                </div>
+                <button onclick="clearSavings()" class="w-full text-center text-[9px] text-gray-600 hover:text-red-400 uppercase font-bold mt-2">Reiniciar Ahorro</button>
+            </div>
+
+            <div class="glass-panel p-6">
+                <h3 class="text-yellow-500 text-[10px] font-black mb-4 uppercase">Configuración</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="manualRate" class="input-pro w-full p-3 rounded-xl text-sm font-bold" oninput="updateRates()">
+                    <input type="number" id="binanceRateManual" class="input-pro w-full p-3 rounded-xl text-sm font-bold" oninput="updateRates()">
+                </div>
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="col-span-2">
+                        <label class="text-[9px] text-gray-400 uppercase">Precio del Filamento ($/Kg)</label>
+                        <input type="number" id="plaPrice" value="40" class="input-pro w-full p-3 rounded-xl text-sm" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-gray-400 uppercase">Margen (X)</label>
+                        <input type="number" id="profitMargin" value="2.0" step="0.1" class="input-pro w-full p-3 rounded-xl text-sm" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-gray-400 uppercase">Precio Máquina</label>
+                        <input type="number" id="machinePrice" value="400" class="input-pro w-full p-3 rounded-xl text-sm" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+            <button onclick="clearSales()" class="w-full p-3 text-[10px] text-red-500 font-black uppercase hover:bg-red-500/5 rounded-xl transition-all border border-red-500/20">🚨 Borrar Todo de la Nube</button>
+        </section>
+
+    </main>
+
+    <!-- Nav de 5 Botones -->
+    <nav class="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 rounded-none rounded-t-[2rem] flex justify-between px-3 py-4 z-50">
+        <button onclick="showPage('calc')" id="btnCalc" class="flex flex-col items-center gap-1 p-1 w-[20%] nav-active">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2zM8 9h0M12 9h0M16 9h0M8 13h0M12 13h0M16 13h0"></path></svg>
+            <span class="text-[7.5px] font-black uppercase">Cálculo</span>
+        </button>
+        <button onclick="showPage('admin')" id="btnAdmin" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"></path></svg>
+            <span class="text-[7.5px] font-black uppercase">Admin</span>
+        </button>
+        <button onclick="showPage('sales')" id="btnSales" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <span class="text-[7.5px] font-black uppercase">Ventas</span>
+        </button>
+        <button onclick="showPage('expenses')" id="btnExpenses" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[7.5px] font-black uppercase">Gastos</span>
+        </button>
+        <button onclick="showPage('inventory')" id="btnInventory" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <span class="text-[7.5px] font-black uppercase">Stock</span>
+        </button>
+    </nav>
+
+    <!-- SCRIPT TIPO MODULE PARA PODER USAR FIREBASE DE FORMA NATIVA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        /* ==========================================
+           1. CONFIGURACIÓN DE FIREBASE (¡ATENCIÓN AQUÍ!)
+           ========================================== 
+           Cuando subas esto a Github, borra lo que está dentro de 
+           "firebaseConfig = { ... }" y pega la configuración que 
+           te da Firebase al crear tu proyecto.
+        */
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config); 
+        } else {
+            // === PON TUS CREDENCIALES DE FIREBASE AQUÍ ===
+            firebaseConfig = {
+                apiKey: "TU_API_KEY",
+                authDomain: "TU_PROYECTO.firebaseapp.com",
+                projectId: "TU_PROYECTO",
+                storageBucket: "TU_PROYECTO.appspot.com",
+                messagingSenderId: "TUS_DATOS",
+                appId: "TUS_DATOS"
+            };
         }
 
-        if(window.currentView === 'inicio') {
-            const tVentas = window.state.ventas.reduce((a, b) => a + (b.total || 0), 0);
-            const tGastos = (window.state.gastos || []).reduce((a, b) => a + (b.monto || 0), 0);
-            const tAhorro = (window.state.ahorroUSDT || []).reduce((a, b) => a + (b.usdt || 0), 0);
-            const gananciaNeta = tVentas - tGastos;
-            const proyeccion = (tVentas / (new Date().getDate())) * 30;
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const canvasAppId = typeof __app_id !== 'undefined' ? __app_id : 'mi-calculadora-3d';
+        let currentUserId = null;
+
+        // Variables de memoria
+        let rates = { bcv: 1, binance: 1 };
+        let salesHistory = [];
+        let totalSavedUSDT = 0;
+        let inventoryData = [];
+        let expensesHistory = [];
+        let currentCalc = { usd: 0, bs: 0, costs: {} };
+
+        // Función auxiliar
+        function getColPath(colName) {
+            if (typeof __app_id !== 'undefined') {
+                return collection(db, 'artifacts', canvasAppId, 'users', currentUserId, colName);
+            } else {
+                return collection(db, `usuarios/${currentUserId}/${colName}`);
+            }
+        }
+
+        // --- AUTENTICACIÓN ---
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth); 
+                }
+            } catch (e) { console.error("Error Auth:", e); }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                const status = document.getElementById('cloudStatus');
+                if(status) {
+                    status.classList.remove('bg-red-500', 'animate-pulse');
+                    status.classList.add('bg-green-500');
+                    status.title = "Conectado a la Nube";
+                }
+                startRealtimeSync(); 
+            }
+        });
+
+        initAuth();
+
+        // --- SINCRONIZACIÓN EN TIEMPO REAL CON LA NUBE ---
+        function startRealtimeSync() {
+            if (!currentUserId) return;
+
+            onSnapshot(getColPath('ventas'), (snapshot) => {
+                salesHistory = [];
+                snapshot.forEach(doc => salesHistory.push(doc.data()));
+                salesHistory.sort((a,b) => a.timestamp - b.timestamp);
+                renderSales();
+                updateAdminPanel();
+            }, e => console.error(e));
+
+            onSnapshot(getColPath('gastos'), (snapshot) => {
+                expensesHistory = [];
+                snapshot.forEach(doc => expensesHistory.push(doc.data()));
+                expensesHistory.sort((a,b) => a.timestamp - b.timestamp);
+                renderExpenses();
+                updateAdminPanel();
+            }, e => console.error(e));
+
+            onSnapshot(getColPath('inventario'), (snapshot) => {
+                inventoryData = [];
+                snapshot.forEach(doc => inventoryData.push(doc.data()));
+                inventoryData.sort((a,b) => a.timestamp - b.timestamp);
+                renderInventory();
+            }, e => console.error(e));
+
+            onSnapshot(doc(getColPath('config'), 'ahorros'), (docSnap) => {
+                if (docSnap.exists()) {
+                    totalSavedUSDT = docSnap.data().total || 0;
+                } else {
+                    totalSavedUSDT = 0;
+                }
+                updateAdminPanel();
+            }, e => console.error(e));
+        }
+
+        // ==========================================
+        // FUNCIONES DE LA APLICACIÓN
+        // ==========================================
+        
+        window.calculate = function() {
+            const peso = parseFloat(document.getElementById('peso')?.value) || 0;
+            const horas = parseFloat(document.getElementById('horas')?.value) || 0;
+            const manoObra = parseFloat(document.getElementById('postHrs')?.value) || 0; 
+            const designExtra = parseFloat(document.getElementById('disenoSelect')?.value) || 0;
+            const delivery = parseFloat(document.getElementById('delivery')?.value) || 0;
             
-            app.innerHTML = `
-                <div class="text-center mb-6"><span class="text-5xl">👑</span><h1 class="text-3xl font-black italic text-white uppercase mt-2 leading-none">Its Mine</h1></div>
-                <div class="card-pro flex justify-between items-center py-4 px-6 mb-4 border-pink-500/50">
-                    <div><p class="text-[8px] opacity-40 uppercase">Tasa BCV</p><b class="text-pink-400 text-lg">${window.state.tasaBCV}</b></div>
-                    <button onclick="sincronizarBCV()" class="bg-pink-500/20 p-3 rounded-2xl">🔄</button>
-                </div>
-                <div class="card-pro text-center bg-gradient-to-b from-pink-500/20 to-transparent"><p class="text-[10px] uppercase font-black opacity-50 mb-1 tracking-widest">Ingreso Bruto</p><h2 class="text-5xl font-black italic text-white leading-none">$${tVentas.toFixed(2)}</h2></div>
-                <div class="grid grid-cols-2 gap-3 mb-2"><div class="card-pro text-center p-4"><p class="text-[8px] opacity-40 mb-1 uppercase text-pink-400">Ganancia Neta</p><h3 class="text-xl font-black text-white">$${gananciaNeta.toFixed(2)}</h3></div><div class="card-pro text-center p-4"><p class="text-[8px] opacity-40 mb-1 uppercase text-blue-400">Proyección Mes</p><h3 class="text-xl font-black text-white">$${proyeccion.toFixed(2)}</h3></div></div>
-                <div class="card-pro flex justify-between items-center py-4 px-6 border-amber-500/20"><div><p class="text-[8px] opacity-40 uppercase text-amber-500">Binance 🔶</p><b class="text-xl">${tAhorro.toFixed(2)} USDT</b></div><div class="flex gap-2"><button onclick="comprarUSDT()" class="bg-amber-500 text-black px-2 py-1 rounded-lg font-black text-[8px] uppercase">Comprar</button><button onclick="gastarUSDT()" class="bg-red-600 text-white px-2 py-1 rounded-lg font-black text-[8px] uppercase">Gastar</button></div></div>
-                <div class="card-pro mt-4"><canvas id="chartData" height="150"></canvas></div>
-            `;
-            setTimeout(() => {
-                new Chart(document.getElementById('chartData'), {
-                    type: 'line', data: { labels: ['Ventas'], datasets: [{ data: [tVentas], borderColor: '#f472b6', tension: 0.4, fill: true, backgroundColor: 'rgba(244, 114, 182, 0.1)' }] },
-                    options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+            const mPrice = parseFloat(document.getElementById('machinePrice')?.value) || 400;
+            const margin = parseFloat(document.getElementById('profitMargin')?.value) || 2.0;
+            const plaPrice = parseFloat(document.getElementById('plaPrice')?.value) || 40;
+            
+            const matCost = (plaPrice / 1000) * peso;
+            const wearCost = (mPrice / 4000) * horas;
+            const risk = (matCost + wearCost) * 0.05;
+
+            const production = matCost + wearCost + risk;
+            
+            const totalUSD = (production * margin) + manoObra + designExtra + delivery;
+            const totalBS = totalUSD * rates.binance;
+
+            const cMat = matCost + risk; 
+            let gananciaBruta = totalUSD - cMat - wearCost - delivery;
+            
+            let aporteMaquina = 0;
+            if (gananciaBruta > 0) {
+                aporteMaquina = Math.max(1.00, gananciaBruta * 0.20);
+                if (aporteMaquina > gananciaBruta * 0.50) {
+                    aporteMaquina = gananciaBruta * 0.50;
+                }
+            }
+
+            const cWear = wearCost + aporteMaquina;
+            const cProfit = gananciaBruta - aporteMaquina;
+
+            currentCalc = {
+                usd: totalUSD, 
+                bs: totalBS,
+                jobName: document.getElementById('jobName')?.value || "Proyecto",
+                costs: { mat: cMat, wear: cWear, profit: cProfit, delivery: delivery },
+                rawInputs: { peso, horas, manoObra, designExtra, delivery, jobName: document.getElementById('jobName')?.value }
+            };
+
+            if (document.getElementById('resTotalUSD')) document.getElementById('resTotalUSD').innerText = totalUSD.toFixed(2);
+            if (document.getElementById('resTotalBS')) document.getElementById('resTotalBS').innerText = `Bs. ${totalBS.toLocaleString('es-VE', {minimumFractionDigits:2})}`;
+            if (document.getElementById('resWearAuto')) document.getElementById('resWearAuto').value = `$${wearCost.toFixed(2)}`;
+        };
+
+        window.showPage = function(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const page = document.getElementById(pageId + 'Page');
+            if (page) page.classList.add('active');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
+            const btn = document.getElementById('btn' + pageId.charAt(0).toUpperCase() + pageId.slice(1));
+            if (btn) btn.classList.add('nav-active');
+        };
+
+        window.goToSales = function() {
+            if(currentCalc.usd <= 0) return showToast("Haz un cálculo primero");
+            document.getElementById('summaryName').innerText = currentCalc.jobName;
+            document.getElementById('summaryDetails').innerText = `${document.getElementById('peso').value}g | ${document.getElementById('horas').value}h`;
+            document.getElementById('summaryUSD').innerText = `$${currentCalc.usd.toFixed(2)}`;
+            window.showPage('sales');
+        };
+
+        window.updateRates = function() {
+            rates.bcv = parseFloat(document.getElementById('manualRate')?.value) || 1;
+            rates.binance = parseFloat(document.getElementById('binanceRateManual')?.value) || 1;
+            document.getElementById('bcvStatus').innerText = `BCV: ${rates.bcv.toFixed(2)}`;
+            document.getElementById('binanceStatus').innerText = `BINANCE: ${rates.binance.toFixed(2)}`;
+            window.calculate();
+        };
+
+        async function getRates() {
+            try {
+                const resO = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+                const dataO = await resO.json();
+                rates.bcv = dataO.promedio || 1;
+                const resP = await fetch('https://ve.dolarapi.com/v1/dolares/paralelo');
+                const dataP = await resP.json();
+                rates.binance = dataP.promedio || 1;
+                document.getElementById('manualRate').value = rates.bcv.toFixed(2);
+                document.getElementById('binanceRateManual').value = rates.binance.toFixed(2);
+                window.updateRates();
+            } catch (e) { showToast("Usando tasas manuales"); }
+        }
+
+        // --- OPERACIONES EN LA NUBE ---
+        
+        window.registerSale = async function() {
+            if (currentCalc.usd <= 0 || !currentUserId) return showToast("Conectando, espera...");
+            const saleId = Date.now().toString();
+            const sale = {
+                id: saleId,
+                client: document.getElementById('clientName')?.value || "Invitado",
+                job: currentCalc.jobName,
+                phone: document.getElementById('clientPhone')?.value || "",
+                usd: currentCalc.usd, 
+                costs: currentCalc.costs,
+                delivery: currentCalc.costs.delivery,
+                rawInputs: currentCalc.rawInputs, 
+                date: new Date().toLocaleDateString(),
+                timestamp: Date.now()
+            };
+            
+            try {
+                await setDoc(doc(getColPath('ventas'), saleId), sale);
+                showToast("✅ Venta Guardada en la Nube");
+                
+                const fields = ['clientName', 'clientPhone', 'jobName', 'peso', 'horas', 'postHrs', 'delivery'];
+                fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+                const sel = document.getElementById('disenoSelect');
+                if (sel) sel.selectedIndex = 0;
+
+                window.calculate();
+                window.showPage('calc');
+            } catch(e) { showToast("Error al guardar en la nube"); console.error(e); }
+        };
+
+        window.deleteSale = async function(id) {
+            if(!currentUserId) return;
+            if(confirm("¿Estás seguro de ELIMINAR esta venta de la NUBE?")) {
+                await deleteDoc(doc(getColPath('ventas'), id.toString()));
+                showToast("Venta eliminada de la nube");
+            }
+        };
+
+        window.editSale = async function(id) {
+            const sale = salesHistory.find(s => s.id.toString() === id.toString());
+            if(!sale || !currentUserId) return;
+            if(!confirm("Esto regresará la venta a la calculadora para que modifiques el precio. ¿Continuar?")) return;
+
+            if (sale.rawInputs) {
+                document.getElementById('jobName').value = sale.rawInputs.jobName || '';
+                document.getElementById('peso').value = sale.rawInputs.peso || '';
+                document.getElementById('horas').value = sale.rawInputs.horas || '';
+                document.getElementById('postHrs').value = sale.rawInputs.manoObra || '';
+                document.getElementById('disenoSelect').value = sale.rawInputs.designExtra || '0';
+                document.getElementById('delivery').value = sale.rawInputs.delivery || '';
+            }
+            document.getElementById('clientName').value = sale.client || '';
+            document.getElementById('clientPhone').value = sale.phone || '';
+
+            await deleteDoc(doc(getColPath('ventas'), id.toString()));
+            
+            window.calculate();
+            window.showPage('calc');
+            showToast("✏️ Editando...");
+        };
+
+        // --- GASTOS ---
+        window.addExpense = async function() {
+            if(!currentUserId) return;
+            const desc = document.getElementById('expDesc').value;
+            const amount = parseFloat(document.getElementById('expAmount').value) || 0;
+            const category = document.getElementById('expCategory').value;
+
+            if(!desc || amount <= 0) return showToast("Datos inválidos");
+
+            const expId = Date.now().toString();
+            try {
+                await setDoc(doc(getColPath('gastos'), expId), {
+                    id: expId, desc, amount, category, date: new Date().toLocaleDateString(), timestamp: Date.now()
                 });
-            }, 100);
-        }
+                document.getElementById('expDesc').value = '';
+                document.getElementById('expAmount').value = '';
+                showToast("✅ Gasto guardado en la nube");
+            } catch(e) { console.error(e); }
+        };
 
-        if(window.currentView === 'ventas') {
-            app.innerHTML = `
-                <div class="card-pro">
-                    <h3 class="text-center font-black italic mb-6 text-pink-400 text-lg uppercase">Nueva Venta Its Mine 💖</h3>
-                    <input id="vCli" placeholder="CLIENTE" class="uppercase font-black">
-                    <input id="vTel" placeholder="TELÉFONO / WHATSAPP" class="font-bold text-pink-300">
-                    <select id="vServ" class="font-black uppercase">${window.state.servicios.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
-                    <select id="vMat" class="font-black uppercase"><option value="">-- SELECCIONAR MATERIAL --</option>${Object.entries(window.state.inventario).map(([id, d]) => `<option value="${id}">${d.nombre} (${d.stock} disp)</option>`).join('')}</select>
-                    <input id="vProd" placeholder="PRODUCTO FINAL" class="uppercase font-black border-pink-500/30">
-                    <textarea id="vDesc" placeholder="DESCRIPCIÓN (COLOR, TALLA...)" class="h-20 text-xs font-bold uppercase"></textarea>
-                    <div class="flex gap-2"><select id="vMet" class="w-1/2 font-black uppercase"><option value="EFECTIVO">💵 CASH</option><option value="PAGO MÓVIL">📱 PM</option><option value="ZELLE">🟣 ZELLE</option><option value="BINANCE">🔶 BINANCE</option></select><input id="vTotal" type="number" placeholder="TOTAL $" class="w-1/2 font-black text-pink-400"></div>
-                    <button onclick="ejecutarVenta()" class="btn-main mt-6">GUARDAR VENTA 👑</button>
-                </div>
-                <div class="mt-6 space-y-3 pb-10">
-                    <p class="text-center text-[10px] font-black opacity-40 uppercase tracking-widest mb-4">Historial de Ventas</p>
-                    ${window.state.ventas.slice().reverse().map(v => `
-                        <div class="card-pro border-l-4 border-pink-500 flex justify-between items-center py-4">
-                            <div><b class="text-xs uppercase">${v.cliente}</b><p class="text-[9px] opacity-40 uppercase">${v.fecha}</p></div>
-                            <div class="text-right"><span class="text-pink-400 font-black text-sm">$${v.total.toFixed(2)}</span><br><button onclick="verTicket(${v.id})" class="text-[8px] font-black uppercase bg-pink-500/10 px-2 py-1 rounded mt-1 tracking-tighter">Ticket 📑</button></div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
+        window.deleteExpense = async function(id) {
+            if(!currentUserId) return;
+            if(confirm("¿Anular este gasto y regresar el dinero?")) {
+                await deleteDoc(doc(getColPath('gastos'), id.toString()));
+                showToast("Gasto anulado de la nube");
+            }
+        };
 
-        if(window.currentView === 'compras') {
-            app.innerHTML = `
-                <div class="card-pro">
-                    <h3 class="text-center font-black italic mb-6 text-pink-400 uppercase tracking-tighter">Entrada de Mercancía 🛒</h3>
-                    <div class="grid grid-cols-1 gap-2 mb-4 border-b border-white/10 pb-4">
-                        <div class="flex gap-2"><input id="newMat" placeholder="NUEVO MATERIAL" class="w-2/3 uppercase"><button onclick="addMatBase()" class="bg-pink-500 px-4 rounded-xl font-black text-[10px]">AÑADIR</button></div>
-                        <div class="flex gap-2"><input id="newServ" placeholder="NUEVO SERVICIO" class="w-2/3 uppercase"><button onclick="addServBase()" class="bg-pink-500 px-4 rounded-xl font-black text-[10px]">AÑADIR</button></div>
+        // --- INVENTARIO ---
+        window.addInvItem = async function() {
+            if(!currentUserId) return;
+            const name = document.getElementById('invName').value;
+            const qty = parseInt(document.getElementById('invQty').value) || 0;
+            const price = parseFloat(document.getElementById('invPrice').value) || 0;
+            const type = document.getElementById('invType').value;
+            if(!name) return showToast("Escribe el nombre del material");
+
+            const itemId = Date.now().toString();
+            await setDoc(doc(getColPath('inventario'), itemId), {
+                id: itemId, name, qty, price, type, date: new Date().toLocaleDateString(), timestamp: Date.now()
+            });
+            
+            document.getElementById('invName').value = '';
+            document.getElementById('invQty').value = '';
+            document.getElementById('invPrice').value = '';
+            showToast("✅ Inventario subido a la nube");
+        };
+
+        window.updateInvQty = async function(id, delta) {
+            if(!currentUserId) return;
+            const item = inventoryData.find(i => i.id.toString() === id.toString());
+            if(item) {
+                let newQty = item.qty + delta;
+                if(newQty < 0) newQty = 0; 
+                await setDoc(doc(getColPath('inventario'), id.toString()), { qty: newQty }, { merge: true });
+            }
+        };
+
+        window.deleteInvItem = async function(id) {
+            if(!currentUserId) return;
+            if(confirm("¿Borrar material de la nube?")) {
+                await deleteDoc(doc(getColPath('inventario'), id.toString()));
+                showToast("Borrado");
+            }
+        };
+
+        window.editInvItem = async function(id) {
+            if(!currentUserId) return;
+            const item = inventoryData.find(i => i.id.toString() === id.toString());
+            if(!item) return;
+
+            document.getElementById('invName').value = item.name || '';
+            document.getElementById('invQty').value = item.qty || '';
+            document.getElementById('invPrice').value = item.price || '';
+            document.getElementById('invType').value = item.type || 'PLA';
+
+            await deleteDoc(doc(getColPath('inventario'), id.toString()));
+            showToast("✏️ Editando...");
+        };
+
+        // --- AHORROS Y REINICIO ---
+        window.addSavings = async function() {
+            if(!currentUserId) return;
+            const val = parseFloat(document.getElementById('usdtInput')?.value);
+            if (isNaN(val) || val <= 0) return showToast("Monto inválido");
+            const newTotal = totalSavedUSDT + val;
+            await setDoc(doc(getColPath('config'), 'ahorros'), { total: newTotal });
+            document.getElementById('usdtInput').value = '';
+            showToast("✅ USDT Ahorrado en la nube");
+        };
+
+        window.clearSavings = async function() {
+            if(!currentUserId) return;
+            if(confirm("¿Reiniciar tu contador de ahorros en la nube?")) {
+                await setDoc(doc(getColPath('config'), 'ahorros'), { total: 0 });
+                showToast("Ahorros reiniciados");
+            }
+        };
+
+        window.clearSales = async function() { 
+            if(!currentUserId) return;
+            if(confirm("🚨 ¿BORRAR DEFINITIVAMENTE TODOS LOS DATOS DE LA NUBE?")) { 
+                salesHistory.forEach(s => deleteDoc(doc(getColPath('ventas'), s.id.toString())));
+                expensesHistory.forEach(e => deleteDoc(doc(getColPath('gastos'), e.id.toString())));
+                inventoryData.forEach(i => deleteDoc(doc(getColPath('inventario'), i.id.toString())));
+                showToast("La nube ha sido formateada");
+            } 
+        };
+
+        // --- RENDERS ---
+        function renderSales() {
+            const list = document.getElementById('salesList');
+            if (!list) return;
+            if (salesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-600 text-[10px] py-10 font-bold uppercase">Sin registros en la nube</p>'; return; }
+            list.innerHTML = salesHistory.map(s => `
+                <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center mb-2">
+                    <div class="flex-1">
+                        <p class="text-[11px] font-black uppercase text-orange-500">${s.client}</p>
+                        <p class="text-[9px] text-blue-400 font-bold mb-1">${s.job}</p>
+                        <p class="text-[8px] text-gray-500 font-bold">${s.date}</p>
                     </div>
-                    <select id="cCat">${window.state.materialesBase.map(m => `<option value="${m}">${m}</option>`).join('')}</select>
-                    <input id="cNom" placeholder="COLOR / DETALLE" class="uppercase font-bold">
-                    <div class="flex gap-2"><input id="cCant" type="number" placeholder="CANTIDAD" class="w-1/2"><input id="cCosto" type="number" placeholder="COSTO $" class="w-1/2"></div>
-                    <div class="flex gap-2"><input id="cPDetal" type="number" placeholder="P. DETAL $" class="w-1/2 text-pink-400"><input id="cPMayor" type="number" placeholder="P. MAYOR $" class="w-1/2 text-pink-300"></div>
-                    <button onclick="ejecutarCompra()" class="btn-main mt-6">AÑADIR AL STOCK 📦</button>
-                </div>
-            `;
-        }
-
-        if(window.currentView === 'gastos') {
-            app.innerHTML = `
-                <div class="card-pro">
-                    <h3 class="text-center font-black italic mb-6 text-red-500 uppercase tracking-tighter">Registro de Egresos 💸</h3>
-                    <input id="gDesc" placeholder="CONCEPTO DEL GASTO" class="uppercase font-bold">
-                    <input id="gMonto" type="number" placeholder="MONTO EN $" class="text-red-400 font-black">
-                    <button onclick="registrarGasto()" class="btn-main !bg-red-600 mt-4">GUARDAR EGRESO</button>
-                </div>
-                <div class="mt-6 space-y-3 pb-10">
-                    <p class="text-center text-[10px] font-black opacity-40 uppercase tracking-widest mb-4 text-red-400">Historial de Gastos</p>
-                    ${(window.state.gastos || []).slice().reverse().map(g => `
-                        <div class="card-pro border-l-4 border-red-500 flex justify-between items-center py-4 bg-red-900/5">
-                            <div><b class="text-xs uppercase">${g.desc}</b><p class="text-[9px] opacity-40 uppercase">${g.fecha}</p></div>
-                            <div class="text-right"><span class="text-red-500 font-black text-sm">$${g.monto.toFixed(2)}</span></div>
+                    <div class="flex flex-col items-end gap-2">
+                        <p class="text-sm font-black text-white">$${s.usd.toFixed(2)}</p>
+                        <div class="flex gap-2">
+                            <button onclick="editSale('${s.id}')" class="text-[9px] bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-lg font-bold uppercase tracking-widest hover:bg-blue-600/40 transition-colors">Editar</button>
+                            <button onclick="deleteSale('${s.id}')" class="text-[10px] bg-red-600/20 text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-600/40 transition-colors">🗑️</button>
                         </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        if(window.currentView === 'stock') {
-            app.innerHTML = `
-                <h3 class="text-center font-black text-xs uppercase text-pink-400 mb-6 tracking-widest">Inventario Its Mine 📦</h3>
-                <div class="space-y-3 pb-10">
-                ${Object.entries(window.state.inventario).map(([id, d]) => `
-                    <div class="card-pro border-l-4 border-pink-500">
-                        <div class="flex justify-between items-center mb-1"><div><b class="text-sm uppercase font-black tracking-tight">${d.nombre}</b><p class="text-[8px] opacity-40 uppercase">${d.cat}</p></div><span class="text-pink-400 font-black text-xl">${d.stock}</span></div>
-                        <div class="grid grid-cols-2 text-[9px] font-bold opacity-60 mb-3 border-t border-white/5 pt-2"><span>🛒 DETAL: $${d.detal || 0}</span><span>📦 MAYOR: $${d.mayor || 0}</span></div>
-                        <div class="flex gap-2"><button onclick="mermaStock('${id}')" class="flex-1 bg-red-500/10 text-red-500 text-[9px] font-black py-2 rounded-lg">MERMA</button><button onclick="delStock('${id}')" class="flex-1 bg-white/5 text-[9px] py-2 rounded-lg">BORRAR</button></div>
                     </div>
-                `).join('')}
                 </div>
-            `;
+            `).reverse().join('');
         }
-    };
 
-    // FUNCIONES LÓGICA
-    window.ejecutarVenta = () => {
-        const total = parseFloat(document.getElementById("vTotal").value);
-        const cli = document.getElementById("vCli").value;
-        if(!cli || isNaN(total)) return alert("⚠️ Faltan datos");
-        const matId = document.getElementById("vMat").value;
-        if(matId && window.state.inventario[matId]) { window.state.inventario[matId].stock -= 1; }
-        window.state.ventas.push({ id: Date.now(), cliente: cli.toUpperCase(), tel: document.getElementById("vTel").value, producto: document.getElementById("vProd").value.toUpperCase(), servicio: document.getElementById("vServ").value, desc: document.getElementById("vDesc").value.toUpperCase(), metodo: document.getElementById("vMet").value, total, fecha: new Date().toLocaleDateString() });
-        sync(); alert("¡Venta Guardada! 👑");
-    };
+        function renderExpenses() {
+            const list = document.getElementById('expensesList');
+            if(!list) return;
+            if(expensesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-600 text-[9px] py-4 font-bold uppercase">Sin gastos registrados</p>'; return; }
+            list.innerHTML = expensesHistory.map(e => {
+                let catName = e.category === 'mat' ? 'Fondo Material' : (e.category === 'machine' ? 'Fondo Máquina' : 'Fondo Envío');
+                return `
+                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 mb-2">
+                    <div>
+                        <p class="text-[11px] font-bold text-white capitalize">${e.desc}</p>
+                        <p class="text-[9px] text-gray-500 uppercase mt-0.5">${catName} | ${e.date}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[12px] font-black text-red-400">-$${e.amount.toFixed(2)}</span>
+                        <button onclick="deleteExpense('${e.id}')" class="text-[10px] bg-red-500/10 text-red-500 hover:bg-red-500/20 px-2 py-1.5 rounded-lg transition-colors">🗑️</button>
+                    </div>
+                </div>
+            `}).reverse().join('');
+        }
 
-    window.verTicket = (id) => {
-        const v = window.state.ventas.find(x => x.id === id); if(!v) return;
-        document.getElementById("receiptContent").innerHTML = `<center>👑 ITS MINE 👑<br>------------------------</center>FECHA: ${v.fecha}<br>CLIENTE: ${v.cliente}<br>------------------------<br>PRODUCTO: ${v.producto}<br>TOTAL: $${v.total.toFixed(2)}<br>Bs: ${(v.total * window.state.tasaBCV).toLocaleString()}<br>------------------------<br><center>¡Gracias por tu compra!</center>`;
-        document.getElementById("receiptModal").style.display = "flex";
-        window.tempTicket = v;
-    };
+        function renderInventory() {
+            const list = document.getElementById('inventoryList');
+            if(!list) return;
+            if(inventoryData.length === 0) { list.innerHTML = '<p class="text-center text-gray-600 text-[10px] py-10 font-bold uppercase tracking-widest">Inventario Vacío</p>'; return; }
+            list.innerHTML = inventoryData.map(i => {
+                let colorClass = i.type === 'PLA' ? 'text-blue-400' : (i.type === 'Empaque' ? 'text-orange-400' : 'text-gray-400');
+                const priceText = i.price ? ` | $${i.price.toFixed(2)}` : '';
+                return `
+                <div class="p-3 bg-white/5 rounded-2xl border border-white/5 flex flex-col gap-2 mb-2">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <p class="text-[11px] font-black uppercase text-white">${i.name}</p>
+                            <p class="text-[9px] ${colorClass} font-bold">${i.type}${priceText}</p>
+                            <p class="text-[8px] text-gray-500 font-bold mt-0.5">Comprado: ${i.date || 'Sin fecha'}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="editInvItem('${i.id}')" class="text-[9px] bg-blue-600/20 text-blue-400 px-2 py-1.5 rounded-lg font-bold uppercase hover:bg-blue-600/40 transition-colors">Editar</button>
+                            <button onclick="deleteInvItem('${i.id}')" class="text-[10px] bg-red-600/20 text-red-400 px-2 py-1.5 rounded-lg hover:bg-red-600/40 transition-colors">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-1">
+                        <div class="flex items-center bg-black/40 rounded-xl border border-white/5 w-fit">
+                            <button onclick="updateInvQty('${i.id}', -1)" class="px-3 py-1.5 text-red-400 hover:bg-red-500/20 rounded-l-xl font-bold text-lg leading-none">-</button>
+                            <span class="text-sm font-black text-white w-8 text-center">${i.qty}</span>
+                            <button onclick="updateInvQty('${i.id}', 1)" class="px-3 py-1.5 text-green-400 hover:bg-green-500/20 rounded-r-xl font-bold text-lg leading-none">+</button>
+                        </div>
+                    </div>
+                </div>
+            `}).reverse().join('');
+        }
 
-    window.closeReceipt = () => { document.getElementById("receiptModal").style.display = "none"; };
-    window.shareReceipt = () => {
-        const v = window.tempTicket;
-        const text = `*👑 ITS MINE*\n------------------------\n*Cliente:* ${v.cliente}\n*Producto:* ${v.producto}\n*Total:* $${v.total.toFixed(2)}`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-    };
+        function updateAdminPanel() {
+            let total = 0, profit = 0, matAccumulated = 0, machineAccumulated = 0, delivAccumulated = 0;
+            salesHistory.forEach(s => {
+                total += s.usd || 0; 
+                profit += s.costs?.profit || 0;
+                matAccumulated += (s.costs?.mat || s.costs?.material || 0); 
+                machineAccumulated += (s.costs?.wear || s.costs?.machine || 0);
+                delivAccumulated += (s.costs?.delivery || s.delivery || 0);
+            });
 
-    window.ejecutarCompra = () => {
-        const id = Date.now();
-        window.state.inventario[id] = { nombre: document.getElementById("cNom").value.toUpperCase(), cat: document.getElementById("cCat").value, stock: parseFloat(document.getElementById("cCant").value), detal: parseFloat(document.getElementById("cPDetal").value), mayor: parseFloat(document.getElementById("cPMayor").value) };
-        sync(); alert("Stock Cargado! 📦");
-    };
+            let expMat = 0, expMach = 0, expDeliv = 0, totalExp = 0;
+            expensesHistory.forEach(e => {
+                totalExp += e.amount;
+                if(e.category === 'mat') expMat += e.amount;
+                if(e.category === 'machine') expMach += e.amount;
+                if(e.category === 'delivery') expDeliv += e.amount;
+            });
 
-    window.registrarGasto = () => {
-        const d = document.getElementById("gDesc").value;
-        const m = parseFloat(document.getElementById("gMonto").value);
-        if(d && m) { window.state.gastos.push({ desc: d.toUpperCase(), monto: m, fecha: new Date().toLocaleDateString() }); sync(); alert("Gasto Guardado 💸"); }
-    };
+            const currentMat = matAccumulated - expMat;
+            const currentMach = machineAccumulated - expMach;
+            const currentDeliv = delivAccumulated - expDeliv;
 
-    window.comprarUSDT = () => {
-        const bs = parseFloat(prompt("Bs. pagados:"));
-        const usdt = parseFloat(prompt("USDT recibidos:"));
-        if(bs && usdt) { window.state.ahorroUSDT.push({ usdt, bs, fecha: new Date().toLocaleDateString() }); sync(); }
-    };
+            const tS = document.getElementById('totalSalesUSD');
+            const nP = document.getElementById('netProfitUSD');
+            const tE = document.getElementById('totalExpensesUSD');
+            const fMat = document.getElementById('fundMaterial');
+            const fMach = document.getElementById('fundMachine');
+            const fDeliv = document.getElementById('fundDelivery');
+            const fSaved = document.getElementById('totalSavedUSDT');
 
-    window.gastarUSDT = () => {
-        const v = parseFloat(prompt("USDT a descontar:"));
-        if(v) { window.state.ahorroUSDT.push({ usdt: -v, fecha: new Date().toLocaleDateString() }); sync(); }
-    };
+            if (tS) tS.innerText = `$${total.toFixed(2)}`;
+            if (nP) nP.innerText = `$${profit.toFixed(2)}`;
+            if (tE) tE.innerText = `-$${totalExp.toFixed(2)}`;
+            
+            if (fMat) fMat.innerHTML = `<span class="${currentMat < 0 ? 'text-red-500' : ''}">$${currentMat.toFixed(2)}</span>`;
+            if (fMach) fMach.innerHTML = `<span class="${currentMach < 0 ? 'text-red-500' : ''}">$${currentMach.toFixed(2)}</span>`;
+            if (fDeliv) fDeliv.innerHTML = `<span class="${currentDeliv < 0 ? 'text-red-500' : ''}">$${currentDeliv.toFixed(2)}</span>`;
+            
+            if (fSaved) fSaved.innerText = `$${totalSavedUSDT.toFixed(2)}`;
+        }
 
-    window.addMatBase = () => { const m = document.getElementById("newMat").value.toUpperCase(); if(m) { window.state.materialesBase.push(m); sync(); } };
-    window.addServBase = () => { const s = document.getElementById("newServ").value.toUpperCase(); if(s) { window.state.servicios.push(s); sync(); } };
-    window.mermaStock = (id) => { const v = parseFloat(prompt("Merma:")); if(v) { window.state.inventario[id].stock -= v; sync(); } };
-    window.delStock = (id) => { if(confirm("¿Borrar?")) { delete window.state.inventario[id]; sync(); } };
-
-    render();
-</script>
+        getRates();
+    </script>
 </body>
 </html>
