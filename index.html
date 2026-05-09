@@ -6,16 +6,17 @@
     <title>Its Mine Printer 3D - Pro Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- NUEVO: Script para el efecto Confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
-            --accent-pink: #ff69b4; /* Rosado brillante */
-            --accent-rose: #f43f5e; /* Rosa rojizo */
+            --accent-pink: #ff69b4; 
+            --accent-rose: #f43f5e; 
         }
         body {
-            background-color: #1a0a10; /* Fondo muy oscuro con un toque rosa */
+            background-color: #1a0a10; 
             color: #ffffff;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            /* Fondo de corazones sutil */
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24"><path fill="rgba(255,105,180,0.04)" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
             background-size: 60px 60px;
             padding-bottom: 100px;
@@ -30,12 +31,13 @@
             background: rgba(255, 255, 255, 0.05) !important;
             border: 2px solid rgba(255, 105, 180, 0.1) !important;
             color: white !important;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
         .input-pro:focus {
             border-color: var(--accent-pink) !important;
             outline: none;
-            box-shadow: 0 0 15px rgba(255, 105, 180, 0.2);
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.25);
+            transform: translateY(-2px);
         }
         .input-readonly {
             background: rgba(244, 63, 94, 0.03) !important;
@@ -46,16 +48,32 @@
         }
         .nav-active {
             color: var(--accent-pink);
-            background: rgba(255, 105, 180, 0.1);
+            background: rgba(255, 105, 180, 0.15);
             border-radius: 16px;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.2); /* Efecto Neón */
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
         }
         .price-card {
             background: linear-gradient(145deg, #18080f 0%, #000 100%);
             border: 2px solid var(--accent-pink);
             box-shadow: 0 10px 40px rgba(255, 105, 180, 0.15);
+            transition: transform 0.3s ease;
+        }
+        .price-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* NUEVO: Animación suave para cambio de pestañas */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .page { display: none; }
-        .page.active { display: block; }
+        .page.active { 
+            display: block; 
+            animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         
         select.input-pro {
             appearance: none;
@@ -65,21 +83,33 @@
             background-size: 1.2em;
         }
 
-        /* Scrollbar personalizada */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,105,180,0.5); border-radius: 10px; }
         
-        /* Indicador de conexión */
         #cloudStatus { transition: all 0.3s ease; }
+
+        /* NUEVO: Alertas dinámicas mejoradas */
+        #toast {
+            transform: translate(-50%, -30px);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+            visibility: hidden;
+        }
+        #toast.show {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Botones con efecto pulsar al hacer click */
+        button:active { transform: scale(0.95); transition: transform 0.1s; }
     </style>
 </head>
 <body class="min-h-screen relative">
 
-    <!-- Header Fijo -->
     <header class="p-6 text-center sticky top-0 z-40 bg-[#1a0a10]/80 backdrop-blur-md border-b border-pink-500/20 shadow-[0_4px_30px_rgba(255,105,180,0.1)]">
         <h1 class="text-xl font-black italic tracking-tighter uppercase flex items-center justify-center gap-2 text-pink-500">
-            <!-- Corona SVG -->
             <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V18H19V19Z" /></svg>
             Its Mine <span class="text-rose-400 underline decoration-pink-500">Printer 3D</span>
             <div id="cloudStatus" class="w-2 h-2 rounded-full bg-red-500 animate-pulse ml-1" title="Conectando a la nube..."></div>
@@ -92,7 +122,7 @@
 
     <main class="max-w-md mx-auto px-4 mt-6">
         
-        <!-- PESTAÑA 1: CALCULADORA -->
+        <!-- PESTAÑA 1: CALCULADORA Y CARRITO -->
         <section id="calcPage" class="page active space-y-4">
             <div class="glass-panel p-6">
                 <h3 class="text-rose-400 text-[10px] font-black mb-4 tracking-widest uppercase flex items-center gap-2">
@@ -148,14 +178,30 @@
                 <div class="absolute top-0 right-0 p-4 opacity-10">
                     <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" class="text-pink-500"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                 </div>
-                <p class="text-pink-500 text-[10px] font-black uppercase tracking-widest mb-1 relative z-10">Precio Final</p>
+                <p class="text-pink-500 text-[10px] font-black uppercase tracking-widest mb-1 relative z-10">Pieza Actual</p>
                 <h2 class="text-6xl font-black text-white tracking-tighter relative z-10" id="resTotalUSD">0.00</h2>
-                <div class="bg-rose-500/10 border border-rose-500/30 px-6 py-1 rounded-full mt-3 inline-block relative z-10">
-                    <p class="text-rose-400 font-black text-xl" id="resTotalBS">Bs. 0.00</p>
+                
+                <button onclick="addToCart()" class="w-full mt-6 bg-pink-600/20 hover:bg-pink-600/40 text-pink-300 p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border border-pink-500/30 active:scale-95 relative z-10">
+                    + Añadir a la Orden 🛒
+                </button>
+            </div>
+
+            <!-- SECCIÓN DEL CARRITO DE COMPRAS -->
+            <div id="cartSection" class="hidden glass-panel p-6 border border-pink-500/50 shadow-[0_0_20px_rgba(255,105,180,0.15)] relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                <h3 class="text-pink-400 text-[11px] font-black mb-4 tracking-widest uppercase flex items-center justify-between relative z-10">
+                    <span>🛒 Orden del Cliente</span>
+                    <span class="bg-pink-500 text-white px-2 py-0.5 rounded-full text-[9px]" id="cartCount">0</span>
+                </h3>
+                <div id="cartListUI" class="space-y-2 mb-4 max-h-40 overflow-y-auto pr-1 relative z-10"></div>
+                
+                <div class="flex justify-between items-center border-t border-pink-500/20 pt-4 mb-4 relative z-10">
+                    <span class="text-[11px] text-gray-400 font-bold uppercase">Total a Cobrar:</span>
+                    <span class="text-2xl font-black text-white" id="cartTotalUSD">$0.00</span>
                 </div>
                 
-                <button onclick="goToSales()" class="w-full mt-6 bg-pink-600 hover:bg-pink-500 text-white p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-pink-600/30 active:scale-95 relative z-10">
-                    Ir a Venta (Generar Ticket) →
+                <button onclick="goToSales()" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white p-4 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-pink-600/30 active:scale-95 relative z-10">
+                    Procesar Orden Completa →
                 </button>
             </div>
         </section>
@@ -201,14 +247,15 @@
         <!-- PESTAÑA 3: VENTAS -->
         <section id="salesPage" class="page space-y-4">
             <div class="bg-white/5 border border-white/10 rounded-3xl p-5 mb-4 shadow-[inset_0_0_20px_rgba(255,105,180,0.05)]">
-                <p class="text-[9px] font-bold text-pink-300 uppercase tracking-widest mb-2">Resumen de Cálculo</p>
+                <p class="text-[9px] font-bold text-pink-300 uppercase tracking-widest mb-2">Resumen de Orden</p>
                 <div class="flex justify-between items-center">
-                    <div>
-                        <h4 class="text-lg font-black text-rose-400 uppercase tracking-tighter" id="summaryName">Nombre Pieza</h4>
-                        <p class="text-xs text-gray-400" id="summaryDetails">0g | 0h de impresión</p>
+                    <div class="flex-1 pr-2">
+                        <h4 class="text-sm font-black text-rose-400 uppercase tracking-tighter" id="summaryName">Artículos</h4>
+                        <p class="text-[10px] text-gray-400 mt-1" id="summaryDetails">Detalles</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-xl font-black text-white" id="summaryUSD">$0.00</p>
+                        <p class="text-2xl font-black text-white" id="summaryUSD">$0.00</p>
+                        <p class="text-xs font-bold text-pink-500" id="summaryBS">Bs. 0.00</p>
                     </div>
                 </div>
             </div>
@@ -221,7 +268,7 @@
                 </div>
                 
                 <div class="grid grid-cols-1 gap-3 mt-8">
-                    <button onclick="generateWHTicket()" class="btn-action bg-green-500 hover:bg-green-400 text-white p-4 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.2)]">Enviar WhatsApp</button>
+                    <button onclick="generateWHTicket()" class="btn-action bg-green-500 hover:bg-green-400 text-white p-4 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.2)]">Enviar Recibo por WhatsApp</button>
                     <button onclick="registerSale()" class="btn-action bg-pink-600/20 hover:bg-pink-600/40 text-pink-300 p-4 rounded-2xl text-[10px] font-black uppercase border border-pink-500/30">Guardar Venta en la Nube</button>
                 </div>
             </div>
@@ -251,6 +298,7 @@
                             <option value="mat">Fondo Material</option>
                             <option value="machine">Fondo Máquina</option>
                             <option value="delivery">Fondo Envíos</option>
+                            <option value="profit">Retiro de Ganancia / Personal</option>
                         </select>
                     </div>
                     <div class="col-span-2">
@@ -275,7 +323,7 @@
                     <p class="text-2xl font-black text-white" id="totalSalesUSD">$0.00</p>
                 </div>
                 <div class="glass-panel p-5 border-l-4 border-green-500">
-                    <p class="text-[9px] font-bold text-gray-400 uppercase">Ganancia Limpia</p>
+                    <p class="text-[9px] font-bold text-gray-400 uppercase">Ganancia Disponible</p>
                     <p class="text-2xl font-black text-green-400" id="netProfitUSD">$0.00</p>
                 </div>
                 <div class="glass-panel p-5 border-l-4 border-rose-500 col-span-2">
@@ -349,34 +397,36 @@
     </main>
 
     <!-- Nav de 5 Botones -->
-    <nav class="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 rounded-none rounded-t-[2rem] flex justify-between px-3 py-4 z-50 bg-[#1a0a10]/95">
-        <button onclick="showPage('calc')" id="btnCalc" class="flex flex-col items-center gap-1 p-1 w-[20%] nav-active">
+    <nav class="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 rounded-none rounded-t-[2rem] flex justify-between px-3 py-4 z-50 bg-[#1a0a10]/95 backdrop-blur-xl">
+        <button onclick="showPage('calc')" id="btnCalc" class="flex flex-col items-center gap-1 p-1 w-[20%] nav-active text-gray-500 transition-colors">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2zM8 9h0M12 9h0M16 9h0M8 13h0M12 13h0M16 13h0"></path></svg>
             <span class="text-[7.5px] font-black uppercase">Cálculo</span>
         </button>
-        <button onclick="showPage('admin')" id="btnAdmin" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+        <button onclick="showPage('admin')" id="btnAdmin" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500 transition-colors">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"></path></svg>
             <span class="text-[7.5px] font-black uppercase">Admin</span>
         </button>
-        <button onclick="showPage('sales')" id="btnSales" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+        <button onclick="showPage('sales')" id="btnSales" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500 transition-colors">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
             <span class="text-[7.5px] font-black uppercase">Ventas</span>
         </button>
-        <button onclick="showPage('expenses')" id="btnExpenses" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+        <button onclick="showPage('expenses')" id="btnExpenses" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500 transition-colors">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             <span class="text-[7.5px] font-black uppercase">Gastos</span>
         </button>
-        <button onclick="showPage('inventory')" id="btnInventory" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500">
+        <button onclick="showPage('inventory')" id="btnInventory" class="flex flex-col items-center gap-1 p-1 w-[20%] text-gray-500 transition-colors">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
             <span class="text-[7.5px] font-black uppercase">Stock</span>
         </button>
     </nav>
 
+    <!-- Alerta Flotante Mejorada -->
+    <div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 glass-panel px-6 py-3 text-white font-black text-xs pointer-events-none z-[100] shadow-[0_10px_40px_rgba(255,105,180,0.3)] border-pink-500 flex items-center gap-2"></div>
     <!-- SCRIPT TIPO MODULE PARA PODER USAR FIREBASE DE FORMA NATIVA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let firebaseConfig;
         if (typeof __firebase_config !== 'undefined') {
@@ -389,8 +439,7 @@
                 projectId: "its-mine-printer3d",
                 storageBucket: "its-mine-printer3d.firebasestorage.app",
                 messagingSenderId: "460313004830",
-                appId: "1:460313004830:web:bcc7590dcf23722396170f",
-                measurementId: "G-G382SFCL8E"
+                appId: "1:460313004830:web:bcc7590dcf23722396170f"
             };
         }
 
@@ -406,7 +455,9 @@
         let totalSavedUSDT = 0;
         let inventoryData = [];
         let expensesHistory = [];
+        
         let currentCalc = { usd: 0, bs: 0, costs: {} };
+        let currentCart = []; // <--- NUEVO: CARRITO DE COMPRAS
 
         // Función auxiliar
         function getColPath(colName) {
@@ -481,7 +532,7 @@
         }
 
         // ==========================================
-        // FUNCIONES DE LA APLICACIÓN
+        // FUNCIONES DE LA CALCULADORA Y CARRITO
         // ==========================================
         
         window.calculate = function() {
@@ -521,15 +572,72 @@
             currentCalc = {
                 usd: totalUSD, 
                 bs: totalBS,
-                jobName: document.getElementById('jobName')?.value || "Proyecto",
+                jobName: document.getElementById('jobName')?.value || "Pieza 3D",
                 costs: { mat: cMat, wear: cWear, profit: cProfit, delivery: delivery },
                 rawInputs: { peso, horas, manoObra, designExtra, delivery, jobName: document.getElementById('jobName')?.value }
             };
 
-            if (document.getElementById('resTotalUSD')) document.getElementById('resTotalUSD').innerText = totalUSD.toFixed(2);
-            if (document.getElementById('resTotalBS')) document.getElementById('resTotalBS').innerText = `Bs. ${totalBS.toLocaleString('es-VE', {minimumFractionDigits:2})}`;
-            if (document.getElementById('resWearAuto')) document.getElementById('resWearAuto').value = `$${wearCost.toFixed(2)}`;
+            // Solo actualiza la tarjeta principal si NO estamos en ventas
+            if (document.getElementById('resTotalUSD')) {
+                document.getElementById('resTotalUSD').innerText = totalUSD > 0 ? totalUSD.toFixed(2) : "0.00";
+            }
         };
+
+        // --- FUNCIONES DEL CARRITO ---
+        window.addToCart = function() {
+            if(currentCalc.usd <= 0) return showToast("La pieza está en $0.00");
+            
+            // Hacemos una copia exacta de lo que calculamos
+            currentCart.push(JSON.parse(JSON.stringify(currentCalc)));
+            
+            // Limpiamos la pantalla para el siguiente
+            document.getElementById('jobName').value = '';
+            document.getElementById('peso').value = '';
+            document.getElementById('horas').value = '';
+            document.getElementById('postHrs').value = '';
+            document.getElementById('disenoSelect').selectedIndex = 0;
+            document.getElementById('delivery').value = '';
+            
+            calculate(); // Resetea a 0
+            renderCart();
+            showToast("🛒 Pieza añadida a la orden");
+        };
+
+        window.removeFromCart = function(index) {
+            currentCart.splice(index, 1);
+            renderCart();
+        };
+
+        function renderCart() {
+            const section = document.getElementById('cartSection');
+            const list = document.getElementById('cartListUI');
+            const totalUSDUI = document.getElementById('cartTotalUSD');
+            const countUI = document.getElementById('cartCount');
+
+            if (currentCart.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            countUI.innerText = currentCart.length;
+
+            let totalUSD = 0;
+            list.innerHTML = currentCart.map((item, index) => {
+                totalUSD += item.usd;
+                return `
+                <div class="flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5">
+                    <div class="truncate pr-2">
+                        <p class="text-[11px] font-bold text-pink-300 truncate">${item.jobName}</p>
+                        <p class="text-[9px] text-gray-400">+$${item.usd.toFixed(2)}</p>
+                    </div>
+                    <button onclick="removeFromCart(${index})" class="text-[10px] text-red-400 hover:text-red-500 bg-red-500/10 hover:bg-red-500/20 px-2 py-1.5 rounded-lg transition-colors">🗑️</button>
+                </div>
+                `;
+            }).join('');
+
+            totalUSDUI.innerText = `$${totalUSD.toFixed(2)}`;
+        }
 
         window.showPage = function(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -541,10 +649,29 @@
         };
 
         window.goToSales = function() {
-            if(currentCalc.usd <= 0) return showToast("Haz un cálculo primero");
-            document.getElementById('summaryName').innerText = currentCalc.jobName;
-            document.getElementById('summaryDetails').innerText = `${document.getElementById('peso').value}g | ${document.getElementById('horas').value}h`;
-            document.getElementById('summaryUSD').innerText = `$${currentCalc.usd.toFixed(2)}`;
+            // Si hay algo escrito pero no en el carrito, lo metemos automático
+            if(currentCart.length === 0 && currentCalc.usd > 0) {
+                addToCart();
+            }
+
+            if(currentCart.length === 0) return showToast("El carrito está vacío");
+
+            // Agrupamos la info para la pantalla de venta
+            let aggUsd = 0, aggBs = 0;
+            let names = [];
+            currentCart.forEach(item => {
+                aggUsd += item.usd;
+                aggBs += item.bs;
+                names.push(item.jobName);
+            });
+
+            const shortNames = names.length > 2 ? `${names[0]}, ${names[1]} y ${names.length - 2} más` : names.join(', ');
+
+            document.getElementById('summaryName').innerText = "Orden Completa";
+            document.getElementById('summaryDetails').innerText = shortNames;
+            document.getElementById('summaryUSD').innerText = `$${aggUsd.toFixed(2)}`;
+            document.getElementById('summaryBS').innerText = `Bs. ${aggBs.toLocaleString('es-VE', {minimumFractionDigits:2})}`;
+            
             window.showPage('sales');
         };
 
@@ -554,6 +681,7 @@
             document.getElementById('bcvStatus').innerText = `BCV: ${rates.bcv.toFixed(2)}`;
             document.getElementById('binanceStatus').innerText = `BINANCE: ${rates.binance.toFixed(2)}`;
             window.calculate();
+            renderCart(); // Por si cambia el BS
         };
 
         async function getRates() {
@@ -573,64 +701,92 @@
         // --- OPERACIONES EN LA NUBE ---
         
         window.registerSale = async function() {
-            if (currentCalc.usd <= 0 || !currentUserId) return showToast("Conectando, espera...");
+            if (currentCart.length === 0 || !currentUserId) return showToast("No hay orden para guardar");
+            
+            // AGRUPAR TODO PARA ADMIN (Para no dañar las métricas)
+            let aggUsd = 0, aggMat = 0, aggWear = 0, aggProfit = 0, aggDeliv = 0;
+            let jobNames = [];
+
+            currentCart.forEach(item => {
+                aggUsd += item.usd;
+                aggMat += item.costs.mat;
+                aggWear += item.costs.wear;
+                aggProfit += item.costs.profit;
+                aggDeliv += item.costs.delivery;
+                jobNames.push(item.jobName);
+            });
+
             const saleId = Date.now().toString();
             const sale = {
                 id: saleId,
                 client: document.getElementById('clientName')?.value || "Invitado",
-                job: currentCalc.jobName,
+                job: jobNames.join(', '), // Ej: Corazón, Dado, Carro
                 phone: document.getElementById('clientPhone')?.value || "",
-                usd: currentCalc.usd, 
-                costs: currentCalc.costs,
-                delivery: currentCalc.costs.delivery,
-                rawInputs: currentCalc.rawInputs, 
+                usd: aggUsd, 
+                costs: { mat: aggMat, wear: aggWear, profit: aggProfit, delivery: aggDeliv },
+                items: currentCart, // <-- Guardamos la lista completa por si acaso
                 date: new Date().toLocaleDateString(),
                 timestamp: Date.now()
             };
             
             try {
                 await setDoc(doc(getColPath('ventas'), saleId), sale);
-                showToast("💖 Venta Guardada en la Nube");
                 
-                const fields = ['clientName', 'clientPhone', 'jobName', 'peso', 'horas', 'postHrs', 'delivery'];
-                fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-                const sel = document.getElementById('disenoSelect');
-                if (sel) sel.selectedIndex = 0;
-
-                window.calculate();
-                window.showPage('calc');
+                // EFECTO CONFETI AL VENDER 🎉
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#ff69b4', '#f43f5e', '#ffffff', '#facc15'],
+                    disableForReducedMotion: true
+                });
+                
+                showToast("🎉 ¡Orden Guardada con Éxito!");
+                
+                // Limpieza post-venta
+                document.getElementById('clientName').value = "";
+                document.getElementById('clientPhone').value = "";
+                currentCart = []; // Vaciamos el carrito
+                renderCart();
+                calculate();
+                
+                // Pequeño retraso para que se vea el confeti antes de cambiar de pantalla
+                setTimeout(() => window.showPage('calc'), 1500);
+                
             } catch(e) { showToast("Error al guardar en la nube"); console.error(e); }
         };
 
         window.deleteSale = async function(id) {
             if(!currentUserId) return;
-            if(confirm("¿Estás seguro de ELIMINAR esta venta de la NUBE?")) {
+            if(confirm("¿Estás seguro de ELIMINAR esta orden completa de la NUBE?")) {
                 await deleteDoc(doc(getColPath('ventas'), id.toString()));
-                showToast("Venta eliminada de la nube");
+                showToast("Orden eliminada de la nube");
             }
         };
 
         window.editSale = async function(id) {
             const sale = salesHistory.find(s => s.id.toString() === id.toString());
             if(!sale || !currentUserId) return;
-            if(!confirm("Esto regresará la venta a la calculadora para que modifiques el precio. ¿Continuar?")) return;
+            if(!confirm("Esto regresará la orden entera al carrito para que la edites. ¿Continuar?")) return;
 
-            if (sale.rawInputs) {
-                document.getElementById('jobName').value = sale.rawInputs.jobName || '';
-                document.getElementById('peso').value = sale.rawInputs.peso || '';
-                document.getElementById('horas').value = sale.rawInputs.horas || '';
-                document.getElementById('postHrs').value = sale.rawInputs.manoObra || '';
-                document.getElementById('disenoSelect').value = sale.rawInputs.designExtra || '0';
-                document.getElementById('delivery').value = sale.rawInputs.delivery || '';
+            // Restauramos el carrito
+            if(sale.items && sale.items.length > 0) {
+                currentCart = sale.items;
+            } else {
+                // Por si edita una venta vieja (antes del carrito)
+                currentCart = [{ usd: sale.usd, bs: sale.usd * rates.binance, jobName: sale.job, costs: sale.costs }];
             }
+
             document.getElementById('clientName').value = sale.client || '';
             document.getElementById('clientPhone').value = sale.phone || '';
 
+            // Borramos la venta de la base de datos
             await deleteDoc(doc(getColPath('ventas'), id.toString()));
             
+            renderCart();
             window.calculate();
             window.showPage('calc');
-            showToast("✏️ Editando...");
+            showToast("✏️ Orden restaurada en el carrito");
         };
 
         // --- GASTOS ---
@@ -747,11 +903,14 @@
             const list = document.getElementById('salesList');
             if (!list) return;
             if (salesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-500 text-[10px] py-10 font-bold uppercase">Sin registros en la nube</p>'; return; }
-            list.innerHTML = salesHistory.map(s => `
+            list.innerHTML = salesHistory.map(s => {
+                // Mostrar cuántos items son si hay carrito
+                const qtyText = (s.items && s.items.length > 1) ? ` <span class="bg-pink-500/20 text-pink-300 px-1.5 rounded text-[8px] ml-1">${s.items.length} items</span>` : '';
+                return `
                 <div class="p-4 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center mb-2">
-                    <div class="flex-1">
-                        <p class="text-[11px] font-black uppercase text-pink-500">${s.client}</p>
-                        <p class="text-[9px] text-rose-400 font-bold mb-1">${s.job}</p>
+                    <div class="flex-1 pr-2 truncate">
+                        <p class="text-[11px] font-black uppercase text-pink-500 truncate">${s.client}</p>
+                        <p class="text-[9px] text-rose-400 font-bold mb-1 truncate">${s.job}${qtyText}</p>
                         <p class="text-[8px] text-gray-500 font-bold">${s.date}</p>
                     </div>
                     <div class="flex flex-col items-end gap-2">
@@ -762,7 +921,7 @@
                         </div>
                     </div>
                 </div>
-            `).reverse().join('');
+            `}).reverse().join('');
         }
 
         function renderExpenses() {
@@ -770,7 +929,11 @@
             if(!list) return;
             if(expensesHistory.length === 0) { list.innerHTML = '<p class="text-center text-gray-500 text-[9px] py-4 font-bold uppercase">Sin gastos registrados</p>'; return; }
             list.innerHTML = expensesHistory.map(e => {
-                let catName = e.category === 'mat' ? 'Fondo Material' : (e.category === 'machine' ? 'Fondo Máquina' : 'Fondo Envío');
+                let catName = 'Gasto';
+                if(e.category === 'mat') catName = 'Fondo Material';
+                if(e.category === 'machine') catName = 'Fondo Máquina';
+                if(e.category === 'delivery') catName = 'Fondo Envío';
+                if(e.category === 'profit') catName = 'Retiro Ganancia';
                 return `
                 <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5 mb-2">
                     <div>
@@ -826,17 +989,19 @@
                 delivAccumulated += (s.costs?.delivery || s.delivery || 0);
             });
 
-            let expMat = 0, expMach = 0, expDeliv = 0, totalExp = 0;
+            let expMat = 0, expMach = 0, expDeliv = 0, expProfit = 0, totalExp = 0;
             expensesHistory.forEach(e => {
                 totalExp += e.amount;
                 if(e.category === 'mat') expMat += e.amount;
                 if(e.category === 'machine') expMach += e.amount;
                 if(e.category === 'delivery') expDeliv += e.amount;
+                if(e.category === 'profit') expProfit += e.amount;
             });
 
             const currentMat = matAccumulated - expMat;
             const currentMach = machineAccumulated - expMach;
             const currentDeliv = delivAccumulated - expDeliv;
+            const currentProfit = profit - expProfit - totalSavedUSDT; // Resta los ahorros y retiros
 
             const tS = document.getElementById('totalSalesUSD');
             const nP = document.getElementById('netProfitUSD');
@@ -847,7 +1012,7 @@
             const fSaved = document.getElementById('totalSavedUSDT');
 
             if (tS) tS.innerText = `$${total.toFixed(2)}`;
-            if (nP) nP.innerText = `$${profit.toFixed(2)}`;
+            if (nP) nP.innerHTML = `<span class="${currentProfit < 0 ? 'text-red-500' : 'text-green-400'}">$${currentProfit.toFixed(2)}</span>`;
             if (tE) tE.innerText = `-$${totalExp.toFixed(2)}`;
             
             if (fMat) fMat.innerHTML = `<span class="${currentMat < 0 ? 'text-red-500' : ''}">$${currentMat.toFixed(2)}</span>`;
@@ -858,16 +1023,35 @@
         }
 
         window.generateWHTicket = function() {
-            const client = document.getElementById('clientName')?.value;
-            // Nuevo ticket de WhatsApp con nombre cambiado y logo
-            const text = `*👑 PRESUPUESTO ITS MINE PRINTER 3D 👑*\n\n*Cliente:* ${client || 'Amigo'}\n*Proyecto:* ${currentCalc.jobName}\n*Monto:* $${currentCalc.usd.toFixed(2)}\n*Bolívares:* ${currentCalc.bs.toLocaleString('es-VE')} (Binance)\n\n_Válido por 24h_`;
+            if(currentCart.length === 0) return showToast("No hay orden para el ticket");
+
+            const client = document.getElementById('clientName')?.value || 'Amigo';
+            let aggUsd = 0;
+            let aggBs = 0;
+            
+            let itemListText = "";
+            currentCart.forEach(item => {
+                itemListText += `🔸 *${item.jobName}* - $${item.usd.toFixed(2)}\n`;
+                aggUsd += item.usd;
+                aggBs += item.bs;
+            });
+
+            const text = `*👑 PRESUPUESTO ITS MINE PRINTER 3D 👑*\n\n*Cliente:* ${client}\n\n*📋 Detalle de su orden:*\n${itemListText}\n*Monto Total:* $${aggUsd.toFixed(2)}\n*Bolívares:* ${aggBs.toLocaleString('es-VE')} (Binance)\n\n_Válido por 24h_`;
+            
             const phone = (document.getElementById('clientPhone')?.value || "").replace(/\D/g, '');
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
         };
 
         function showToast(msg) {
             const t = document.getElementById('toast');
-            if (t) { t.innerText = msg; t.style.opacity = "1"; setTimeout(() => t.style.opacity = "0", 3000); }
+            if (t) { 
+                t.innerHTML = msg; 
+                t.classList.add('show');
+                // Quitar la clase después de 3 segundos
+                setTimeout(() => {
+                    t.classList.remove('show');
+                }, 3000); 
+            }
         }
 
         getRates();
