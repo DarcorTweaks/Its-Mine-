@@ -1,0 +1,10 @@
+{
+  "name": "Its Mine Printer 3D",
+  "short_name": "Its Mine 3D",
+  "description": "Suite de gestión para negocio de impresión 3D",
+  "start_url": "/Its-Mine-/app.html",
+  "display": "standalone",
+  "background_color": "#1a0a10",
+  "theme_color": "#ff69b4",
+  "icons": []
+}

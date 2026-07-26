@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Its Mine Printer 3D - Panel Admin</title>
+  <meta name="description" content="Panel de administración Its Mine Printer 3D">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff69b4">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card glass-panel flex-col flex-center gap-3">
+      <div class="text-pink heading-xl">👑</div>
+      <h1 class="heading-lg font-black text-white text-center uppercase tracking-wide">Its Mine <span class="text-rose">Printer 3D</span></h1>
+      <p class="text-xs text-muted text-center uppercase tracking-wide">Panel de administración protegido</p>
+      
+      <div class="flex-col gap-2 w-full mt-4">
+        <input type="email" id="loginEmail" class="input-pro" placeholder="Correo">
+        <input type="password" id="loginPassword" class="input-pro" placeholder="Contraseña">
+        <button id="btnLogin" class="btn btn-primary font-black uppercase mt-2">Iniciar Sesión</button>
+      </div>
+      <p id="loginError" class="text-xs text-red font-bold text-center mt-2"></p>
+    </div>
+  </div>
+
+  <!-- QUOTE OVERLAY -->
+  <div id="quoteOverlay" class="quote-overlay hidden">
+    <div class="quote-card glass-panel">
+      <div class="flex-between mb-4">
+        <h2 class="heading-lg font-black text-pink">👑 Its Mine 3D</h2>
+        <button id="btnCloseQuote" class="btn btn-sm btn-ghost text-muted">X</button>
+      </div>
+      <div id="quoteContent" class="flex-col gap-2 mb-4"></div>
+      <button id="btnCopyQuote" class="btn btn-secondary font-bold uppercase w-full">Copiar como texto</button>
+    </div>
+  </div>
+
+  <!-- MAIN APP (Hidden initially) -->
+  <div id="appContainer" style="display: none;">
+    
+    <!-- HEADER -->
+    <header class="glass-panel" style="position: sticky; top: 0; z-index: 40; border-radius: 0; border-bottom: 1px solid rgba(255,105,180,0.2);">
+      <div class="container flex-col flex-center gap-2 py-4">
+        <h1 class="heading-md font-black italic tracking-wide uppercase flex-center gap-2">
+          <span class="text-yellow">👑</span>
+          <span class="text-white">Its Mine</span> <span class="text-rose">Printer 3D</span>
+          <div id="cloudStatus" class="status-dot" style="background: red;" title="Conectando..."></div>
+        </h1>
+        <div class="rates-bar flex-center gap-3">
+          <span id="bcvStatus" class="badge badge-blue font-bold">BCV: --</span>
+          <span id="binanceStatus" class="badge badge-yellow font-bold">BINANCE: --</span>
+        </div>
+        <button id="btnLogout" class="btn btn-sm btn-ghost text-xxs uppercase absolute top-2 right-2 text-muted">Salir</button>
+      </div>
+    </header>
+
+    <main class="container section-spacing" style="padding-bottom: 100px; padding-top: 20px;">
+      
+      <!-- TAB 1: CALC -->
+      <section id="calcPage" class="page active flex-col gap-4" style="display:flex;">
+        
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-rose uppercase flex-center gap-2" style="justify-content: flex-start;">
+            <span class="status-dot" style="background: var(--accent-rose);"></span> 1. Material
+          </h3>
+          <div class="grid-2 gap-3">
+            <select id="materialSelect" class="select-pro font-bold text-sm">
+              <option value="pla">PLA</option>
+              <option value="petg">PETG</option>
+              <option value="tpu">TPU Flexible</option>
+              <option value="abs">ABS</option>
+            </select>
+            <select id="qualitySelect" class="select-pro font-bold text-sm">
+              <option value="standard">Estándar (0.2mm)</option>
+              <option value="high">Alta (0.12mm)</option>
+              <option value="ultra">Ultra (0.08mm)</option>
+            </select>
+          </div>
+          <input type="text" id="jobName" class="input-pro" placeholder="Nombre de la pieza (Ej: Llavero)">
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-rose uppercase flex-center gap-2" style="justify-content: flex-start;">
+            <span class="status-dot" style="background: var(--accent-rose);"></span> 2. Datos
+          </h3>
+          <div class="grid-2 gap-3">
+            <div class="flex-col gap-2">
+              <label class="text-xxs font-bold text-muted uppercase">Peso (g)</label>
+              <input type="number" id="peso" class="input-pro font-bold" placeholder="0">
+            </div>
+            <div class="flex-col gap-2">
+              <label class="text-xxs font-bold text-muted uppercase">Horas Máquina</label>
+              <input type="number" id="horas" class="input-pro font-bold" placeholder="0">
+            </div>
+            <div class="flex-col gap-2">
+              <label class="text-xxs font-bold text-muted uppercase">Mano Obra Extra ($)</label>
+              <input type="number" id="postHrs" class="input-pro font-bold" placeholder="0">
+            </div>
+            <div class="flex-col gap-2">
+              <label class="text-xxs font-bold text-rose uppercase" style="opacity:0.7">Desgaste Auto</label>
+              <input type="text" id="resWearAuto" class="input-readonly font-bold" value="$0.00" readonly>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-pink uppercase flex-center gap-2" style="justify-content: flex-start;">
+            <span class="status-dot" style="background: var(--accent-pink);"></span> 3. Extras
+          </h3>
+          <div class="flex-col gap-3">
+            <select id="disenoSelect" class="select-pro font-bold text-sm">
+              <option value="0">Diseño Gratis (STL Listo) - $0</option>
+              <option value="5">Simple (Llaveros/Nombres) - $5</option>
+              <option value="12">Medio (Edición STL) - $12</option>
+              <option value="25">Avanzado (Modelado propio) - $25</option>
+              <option value="50">Ingeniería (Pieza Técnica) - $50</option>
+            </select>
+            <input type="number" id="delivery" class="input-pro font-bold" placeholder="Logística / Envío ($)">
+          </div>
+        </div>
+
+        <div class="price-card flex-col flex-center gap-3">
+          <p class="text-xxs font-black text-pink uppercase tracking-wide">Pieza Actual</p>
+          <h2 id="resTotalUSD" class="heading-xl font-black text-white">0.00</h2>
+          <button id="btnAddToCart" class="btn btn-primary w-full mt-2 font-black uppercase tracking-wide">+ Añadir a la Orden 🛒</button>
+        </div>
+
+        <div id="cartSection" class="glass-panel flex-col gap-3 hidden" style="border-color: rgba(255,105,180,0.5);">
+          <div class="flex-between">
+            <h3 class="text-xs font-black text-pink uppercase tracking-wide">🛒 Orden del Cliente</h3>
+            <span id="cartCount" class="badge badge-pink">0</span>
+          </div>
+          <div id="cartListUI" class="flex-col gap-2" style="max-height: 150px; overflow-y: auto;"></div>
+          <div class="flex-between mt-2 pt-2" style="border-top: 1px solid rgba(255,105,180,0.2);">
+            <span class="text-xs text-muted font-bold uppercase">Total:</span>
+            <span id="cartTotalUSD" class="heading-md font-black text-white">$0.00</span>
+          </div>
+          <button id="btnGoToSales" class="btn btn-primary w-full font-black uppercase tracking-wide">Procesar Orden →</button>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: ADMIN -->
+      <section id="adminPage" class="page flex-col gap-4" style="display: none;">
+        
+        <div class="kpi-grid grid-2 gap-3">
+          <div class="stat-card glass-panel border-left-pink">
+            <p class="text-xxs font-bold text-muted uppercase">Ventas Totales</p>
+            <p id="totalSalesUSD" class="text-lg font-black text-white">$0.00</p>
+          </div>
+          <div class="stat-card glass-panel border-left-green">
+            <p class="text-xxs font-bold text-muted uppercase">Ganancia Disp</p>
+            <p id="netProfitUSD" class="text-lg font-black text-green">$0.00</p>
+          </div>
+          <div class="stat-card glass-panel border-left-rose col-span-2">
+            <p class="text-xxs font-bold text-muted uppercase">Total Gastos</p>
+            <p id="totalExpensesUSD" class="text-lg font-black text-rose">$0.00</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid grid-3 gap-2">
+          <div class="glass-panel flex-col flex-center py-2">
+            <p class="text-xxs text-muted uppercase">Pedidos</p>
+            <p id="kpiOrders" class="font-black text-white">0</p>
+          </div>
+          <div class="glass-panel flex-col flex-center py-2">
+            <p class="text-xxs text-muted uppercase">Ticket Prom</p>
+            <p id="kpiTicket" class="font-black text-white">$0</p>
+          </div>
+          <div class="glass-panel flex-col flex-center py-2">
+            <p class="text-xxs text-muted uppercase">Margen</p>
+            <p id="kpiMargin" class="font-black text-green">0%</p>
+          </div>
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="text-xs font-black text-white uppercase tracking-wide">Gráficos</h3>
+          <div class="chart-container" style="height: 200px;">
+            <canvas id="salesChart"></canvas>
+          </div>
+          <div class="chart-container mt-4" style="height: 200px;">
+            <canvas id="expensesChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-panel flex-col gap-2">
+          <h3 class="text-xs font-black text-white uppercase tracking-wide">Fondos (Nube)</h3>
+          <div class="flex-between p-2 bg-white/5 rounded">
+            <span class="text-xxs font-bold text-rose uppercase">Fondo Material</span>
+            <span id="fundMaterial" class="font-black text-lg">$0.00</span>
+          </div>
+          <div class="flex-between p-2 bg-white/5 rounded">
+            <span class="text-xxs font-bold text-pink uppercase">Fondo Máquina</span>
+            <span id="fundMachine" class="font-black text-lg">$0.00</span>
+          </div>
+          <div class="flex-between p-2 bg-white/5 rounded">
+            <span class="text-xxs font-bold text-muted uppercase">Fondo Envíos</span>
+            <span id="fundDelivery" class="font-black text-lg">$0.00</span>
+          </div>
+        </div>
+
+        <div class="glass-panel flex-col gap-3 border-left-green">
+          <h3 class="text-xs font-black text-green uppercase tracking-wide">Mi Ahorro (USDT)</h3>
+          <div class="flex-between bg-green/10 p-2 rounded border border-green/30">
+            <span class="text-xxs font-bold text-green uppercase">Total Ahorrado</span>
+            <span id="totalSavedUSDT" class="font-black text-xl text-green">$0.00</span>
+          </div>
+          <div class="flex gap-2">
+            <input type="number" id="usdtInput" class="input-pro font-bold" placeholder="Monto $">
+            <button id="btnSaveUSDT" class="btn btn-success font-black uppercase text-xxs">+ Guardar</button>
+          </div>
+          <button id="btnClearUSDT" class="btn btn-ghost text-xxs text-muted uppercase">Reiniciar Ahorro</button>
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="text-xs font-black text-yellow uppercase">Configuración</h3>
+          <div class="grid-2 gap-2">
+            <input type="number" id="manualRate" class="input-pro font-bold" title="Tasa BCV">
+            <input type="number" id="binanceRateManual" class="input-pro font-bold" title="Tasa Binance">
+          </div>
+          <div class="grid-2 gap-2 mt-2">
+            <div class="flex-col">
+              <label class="text-xxs text-muted uppercase">Filamento ($/Kg)</label>
+              <input type="number" id="plaPrice" value="40" class="input-pro">
+            </div>
+            <div class="flex-col">
+              <label class="text-xxs text-muted uppercase">Margen (X)</label>
+              <input type="number" id="profitMargin" value="2.0" step="0.1" class="input-pro">
+            </div>
+          </div>
+          <div class="grid-2 gap-2 mt-2">
+            <div class="flex-col">
+              <label class="text-xxs text-muted uppercase">Precio Máquina</label>
+              <input type="number" id="machinePrice" value="400" class="input-pro">
+            </div>
+          </div>
+        </div>
+        
+        <div class="grid-2 gap-2">
+            <button id="btnExportSales" class="btn btn-secondary text-xxs font-bold uppercase">Exportar Ventas CSV</button>
+            <button id="btnExportExpenses" class="btn btn-secondary text-xxs font-bold uppercase">Exportar Gastos CSV</button>
+            <button id="btnExportInventory" class="btn btn-secondary text-xxs font-bold uppercase col-span-2">Exportar Stock CSV</button>
+        </div>
+
+        <button id="btnClearAll" class="btn btn-danger font-black uppercase tracking-wide mt-2">🚨 Borrar Todo</button>
+      </section>
+
+      <!-- TAB 3: VENTAS -->
+      <section id="salesPage" class="page flex-col gap-4" style="display: none;">
+        
+        <div class="glass-panel flex-col gap-2" style="border: 1px solid rgba(255,255,255,0.1);">
+          <p class="text-xxs font-bold text-pink uppercase tracking-wide">Resumen de Orden Actual</p>
+          <div class="flex-between">
+            <div class="flex-col truncate pr-2">
+              <h4 id="summaryName" class="text-sm font-black text-rose uppercase tracking-wide">Artículos</h4>
+              <p id="summaryDetails" class="text-xxs text-muted truncate">Detalles</p>
+            </div>
+            <div class="flex-col text-right">
+              <p id="summaryUSD" class="heading-md font-black text-white">$0.00</p>
+              <p id="summaryBS" class="text-xs font-bold text-pink">Bs. 0.00</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="text-xs font-black text-pink uppercase tracking-wide">Datos Cliente & Cierre</h3>
+          <input type="text" id="clientName" class="input-pro" placeholder="Nombre">
+          <input type="tel" id="clientPhone" class="input-pro" placeholder="WhatsApp (Ej: 58412...)">
+          
+          <div class="flex-col gap-2 mt-2">
+            <button id="btnGenerateQuote" class="btn btn-secondary font-black uppercase text-xs">Generar Cotización Limpia</button>
+            <button id="btnWHTicket" class="btn btn-success font-black uppercase text-xs">Enviar Recibo WhatsApp</button>
+            <button id="btnSaveSale" class="btn btn-primary font-black uppercase text-xs" style="background: rgba(255,105,180,0.2); border: 1px solid var(--accent-pink);">Guardar Venta en Nube</button>
+          </div>
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <div class="flex-between">
+            <h3 class="text-xs font-black text-muted uppercase tracking-wide">Historial</h3>
+            <select id="statusFilter" class="select-pro text-xxs p-1">
+              <option value="all">Todos</option>
+              <option value="pending">Pendientes</option>
+              <option value="delivered">Entregados</option>
+            </select>
+          </div>
+          <div id="salesList" class="flex-col gap-2" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+      </section>
+
+      <!-- TAB 4: GASTOS -->
+      <section id="expensesPage" class="page flex-col gap-4" style="display: none;">
+        
+        <div class="glass-panel flex-col gap-3" style="border-color: rgba(244,63,94,0.3);">
+          <h3 class="text-xs font-black text-rose uppercase tracking-wide flex-center gap-2" style="justify-content: flex-start;">
+            <span class="status-dot" style="background: var(--accent-rose);"></span> Nuevo Gasto / Retiro
+          </h3>
+          <input type="text" id="expDesc" class="input-pro" placeholder="Concepto">
+          <div class="grid-2 gap-2">
+            <input type="number" id="expAmount" class="input-pro font-bold" placeholder="Monto $">
+            <select id="expCategory" class="select-pro font-bold">
+              <option value="mat">Fondo Material</option>
+              <option value="machine">Fondo Máquina</option>
+              <option value="delivery">Fondo Envíos</option>
+              <option value="profit">Retiro Ganancia</option>
+            </select>
+          </div>
+          <button id="btnSaveExpense" class="btn btn-danger font-black uppercase mt-2">- Descontar y Guardar</button>
+        </div>
+
+        <div class="glass-panel flex-col gap-2">
+          <h3 class="text-xs font-black text-muted uppercase tracking-wide">Historial de Gastos</h3>
+          <div id="expensesList" class="flex-col gap-2" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+      </section>
+
+      <!-- TAB 5: INVENTARIO -->
+      <section id="inventoryPage" class="page flex-col gap-4" style="display: none;">
+        
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="text-xs font-black text-rose uppercase tracking-wide flex-center gap-2" style="justify-content: flex-start;">
+            <span class="status-dot" style="background: var(--accent-rose);"></span> Agregar Material
+          </h3>
+          <input type="text" id="invName" class="input-pro" placeholder="Nombre (Ej: PLA Rosa)">
+          <div class="grid-3 gap-2">
+            <input type="number" id="invQty" class="input-pro font-bold" placeholder="Cant.">
+            <input type="number" id="invMinQty" class="input-pro font-bold" placeholder="Min.">
+            <input type="number" id="invPrice" class="input-pro font-bold" placeholder="Precio $">
+          </div>
+          <select id="invType" class="select-pro font-bold">
+            <option value="PLA">Rollo PLA</option>
+            <option value="Empaque">Bolsa / Caja</option>
+            <option value="Otro">Otro</option>
+          </select>
+          <button id="btnSaveInv" class="btn btn-danger font-black uppercase mt-2">+ Guardar</button>
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="text-xs font-black text-pink uppercase tracking-wide">Stock Sincronizado</h3>
+          <div id="inventoryList" class="flex-col gap-2" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button id="navCalc" class="nav-btn nav-active">
+        <span>Cálculo</span>
+      </button>
+      <button id="navAdmin" class="nav-btn">
+        <span>Admin</span>
+      </button>
+      <button id="navSales" class="nav-btn">
+        <span>Ventas</span>
+      </button>
+      <button id="navExpenses" class="nav-btn">
+        <span>Gastos</span>
+      </button>
+      <button id="navInventory" class="nav-btn">
+        <span>Stock</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <!-- MODULE SCRIPT -->
+  <script type="module">
+    import { initAuth, onAuthReady, loginWithEmail, logout } from './js/firebase.js';
+    import { calculate, addToCart, removeFromCart, renderCart, getCart, clearCart, fetchRates, getRates, updateRatesDisplay, setRates } from './js/calculator.js';
+    import { 
+        startRealtimeSync, registerSale, deleteSale, editSale, updateSaleStatus,
+        addExpense, deleteExpense, addInvItem, updateInvQty, deleteInvItem, editInvItem,
+        addSavings, clearSavings, clearAllData, generateWHTicket, 
+        generateQuoteView, closeQuoteView, filterSales,
+        exportSalesCSV, exportExpensesCSV, exportInventoryCSV
+    } from './js/sales.js';
+    import { updateAdminPanel } from './js/dashboard.js';
+    import { showToast, formatBS, formatUSD } from './js/utils.js';
+
+    // Expose to window for dynamic onclick handlers
+    window.renderCart = renderCart;
+    window.removeFromCart = removeFromCart;
+    window.deleteSale = deleteSale;
+    window.editSale = editSale;
+    window.updateSaleStatus = updateSaleStatus;
+    window.deleteExpense = deleteExpense;
+    window.updateInvQty = updateInvQty;
+    window.deleteInvItem = deleteInvItem;
+    window.editInvItem = editInvItem;
+
+    const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory'];
+
+    window.showPage = function(pageId) {
+        pages.forEach(p => {
+            const el = document.getElementById(p + 'Page');
+            if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+            const nav = document.getElementById('nav' + p.charAt(0).toUpperCase() + p.slice(1));
+            if (nav) nav.classList.remove('nav-active');
+        });
+        
+        const pageEl = document.getElementById(pageId + 'Page');
+        if (pageEl) { pageEl.style.display = 'flex'; pageEl.classList.add('active'); }
+        
+        const navEl = document.getElementById('nav' + pageId.charAt(0).toUpperCase() + pageId.slice(1));
+        if (navEl) navEl.classList.add('nav-active');
+    };
+
+    // Nav listeners
+    pages.forEach(p => {
+        const nav = document.getElementById('nav' + p.charAt(0).toUpperCase() + p.slice(1));
+        if (nav) {
+            nav.addEventListener('click', () => window.showPage(p));
+        }
+    });
+
+    // Calc inputs
+    ['peso', 'horas', 'postHrs', 'disenoSelect', 'delivery', 'materialSelect', 'qualitySelect', 'profitMargin', 'machinePrice', 'plaPrice'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', calculate);
+        el.addEventListener('change', calculate);
+      }
+    });
+
+    // Rates manual update
+    const manualRate = document.getElementById('manualRate');
+    const binanceRateManual = document.getElementById('binanceRateManual');
+    const updateRatesFn = () => {
+        const b = parseFloat(manualRate.value) || 1;
+        const bi = parseFloat(binanceRateManual.value) || 1;
+        setRates(b, bi);
+        updateRatesDisplay();
+        calculate();
+    };
+    if (manualRate) manualRate.addEventListener('input', updateRatesFn);
+    if (binanceRateManual) binanceRateManual.addEventListener('input', updateRatesFn);
+
+    // Buttons
+    document.getElementById('btnAddToCart')?.addEventListener('click', addToCart);
+    document.getElementById('btnGoToSales')?.addEventListener('click', () => {
+        const { currentCart, currentCalc } = window; // wait, need to access via getCart
+        import('./js/calculator.js').then(({ getCart, calculate }) => {
+            const cart = getCart();
+            if (cart.length === 0) {
+                const total = document.getElementById('resTotalUSD').textContent;
+                if (total !== "0.00") {
+                    addToCart();
+                }
+            }
+            const c2 = getCart();
+            if (c2.length === 0) return showToast("El carrito está vacío");
+
+            let aggUsd = 0, aggBs = 0;
+            let names = [];
+            c2.forEach(item => {
+                aggUsd += item.usd;
+                aggBs += item.bs;
+                names.push(item.jobName);
+            });
+
+            const shortNames = names.length > 2 ? `${names[0]}, ${names[1]} y ${names.length - 2} más` : names.join(', ');
+
+            const sN = document.getElementById('summaryName');
+            const sD = document.getElementById('summaryDetails');
+            const sU = document.getElementById('summaryUSD');
+            const sB = document.getElementById('summaryBS');
+            
+            if (sN) sN.textContent = "Orden Completa";
+            if (sD) sD.textContent = shortNames;
+            if (sU) sU.textContent = formatUSD(aggUsd);
+            if (sB) sB.textContent = formatBS(aggBs);
+
+            window.showPage('sales');
+        });
+    });
+
+    document.getElementById('btnSaveSale')?.addEventListener('click', registerSale);
+    document.getElementById('btnWHTicket')?.addEventListener('click', generateWHTicket);
+    document.getElementById('btnGenerateQuote')?.addEventListener('click', generateQuoteView);
+    document.getElementById('btnCloseQuote')?.addEventListener('click', closeQuoteView);
+    document.getElementById('btnCopyQuote')?.addEventListener('click', () => {
+        const el = document.getElementById('quoteContent');
+        if (el) {
+            navigator.clipboard.writeText(el.innerText)
+                .then(() => showToast("Copiado al portapapeles"))
+                .catch(() => showToast("Error al copiar"));
+        }
+    });
+    
+    document.getElementById('statusFilter')?.addEventListener('change', (e) => filterSales(e.target.value));
+
+    document.getElementById('btnSaveExpense')?.addEventListener('click', addExpense);
+    document.getElementById('btnSaveInv')?.addEventListener('click', addInvItem);
+    
+    document.getElementById('btnSaveUSDT')?.addEventListener('click', addSavings);
+    document.getElementById('btnClearUSDT')?.addEventListener('click', clearSavings);
+    document.getElementById('btnClearAll')?.addEventListener('click', clearAllData);
+    
+    document.getElementById('btnExportSales')?.addEventListener('click', exportSalesCSV);
+    document.getElementById('btnExportExpenses')?.addEventListener('click', exportExpensesCSV);
+    document.getElementById('btnExportInventory')?.addEventListener('click', exportInventoryCSV);
+
+    // Auth
+    const loginOverlay = document.getElementById('loginOverlay');
+    const appContainer = document.getElementById('appContainer');
+    const cloudStatus = document.getElementById('cloudStatus');
+
+    document.getElementById('btnLogin')?.addEventListener('click', async () => {
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPassword').value;
+        const err = document.getElementById('loginError');
+        if (!email || !pass) { err.textContent = "Ingresa correo y contraseña"; return; }
+        
+        try {
+            await loginWithEmail(email, pass);
+            err.textContent = "";
+        } catch(e) {
+            err.textContent = "Error de credenciales";
+        }
+    });
+
+    document.getElementById('btnLogout')?.addEventListener('click', logout);
+
+    // Setup Window context exports (useful for inline onclicks if needed, though we avoided them)
+    // we handled most with event listeners above.
+    
+    // Init app
+    fetchRates();
+    
+    onAuthReady((user) => {
+        if (user) {
+            loginOverlay.style.display = 'none';
+            appContainer.style.display = 'block';
+            cloudStatus.style.background = 'green';
+            cloudStatus.title = "Conectado";
+            startRealtimeSync();
+        } else {
+            loginOverlay.style.display = 'flex';
+            appContainer.style.display = 'none';
+            cloudStatus.style.background = 'red';
+            cloudStatus.title = "Desconectado";
+        }
+    });
+
+    initAuth();
+
+  </script>
+</body>
+</html>
