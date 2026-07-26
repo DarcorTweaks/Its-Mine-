@@ -556,17 +556,40 @@
     const appContainer = document.getElementById('appContainer');
     const cloudStatus = document.getElementById('cloudStatus');
 
-    document.getElementById('btnLogin')?.addEventListener('click', async () => {
+document.getElementById('btnLogin')?.addEventListener('click', async () => {
         const email = document.getElementById('loginEmail').value;
         const pass = document.getElementById('loginPassword').value;
         const err = document.getElementById('loginError');
+        const btn = document.getElementById('btnLogin');
+
         if (!email || !pass) { err.textContent = "Ingresa correo y contraseña"; return; }
         
         try {
+            btn.textContent = "Conectando...";
+            btn.disabled = true;
+            
             await loginWithEmail(email, pass);
+            
             err.textContent = "";
+            btn.textContent = "Iniciar Sesión";
+            btn.disabled = false;
         } catch(e) {
-            err.textContent = "Error de credenciales";
+            btn.textContent = "Iniciar Sesión";
+            btn.disabled = false;
+            
+            // Imprime el error real en la consola para depurar
+            console.error("Error exacto de Firebase:", e);
+            
+            // Filtramos y mostramos los errores exactos en pantalla
+            if (e.code === 'auth/unauthorized-domain') {
+                err.textContent = "Bloqueado: Dominio no autorizado en Firebase. Añade tu URL en la consola.";
+            } else if (e.code === 'auth/network-request-failed') {
+                err.textContent = "Falla de red: ¿Estás abriendo el archivo localmente? Usa Live Server.";
+            } else if (e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
+                err.textContent = "Credenciales inválidas. Revisa correo/contraseña.";
+            } else {
+                err.textContent = "Error: " + (e.code || e.message);
+            }
         }
     });
 
