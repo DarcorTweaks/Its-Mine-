@@ -1,13 +1,24 @@
-import { currentUserId, saveDoc, removeDoc, listenCollection, listenDoc } from './firebase.js';
-import { formatUSD, formatBS, showToast, safeConfirm, createElement, exportToCSV } from './utils.js';
+import { currentUserId, saveDoc, removeDoc, listenCollection, listenDoc, saveCatalogItem, deleteCatalogItem, listenPublicCatalog } from './firebase.js';
+import { formatUSD, formatBS, showToast, safeConfirm, createElement, exportToCSV, compressImageFile } from './utils.js';
 import { getCart, clearCart, calculate, getRates } from './calculator.js';
 import { updateAdminPanel } from './dashboard.js';
 
 let salesHistory = [];
 let expensesHistory = [];
 let inventoryData = [];
+let catalogData = [];
 let totalSavedUSDT = 0;
 let currentStatusFilter = 'all';
+
+export const CATALOG_CATEGORIES = [
+  { id: 'accesorio', label: 'Accesorio', color: 'pink' },
+  { id: 'hogar', label: 'Hogar', color: 'green' },
+  { id: 'coleccionable', label: 'Coleccionable', color: 'pink' },
+  { id: 'repuesto', label: 'Repuesto', color: 'yellow' },
+  { id: 'gamer', label: 'Setup Gamer', color: 'blue' },
+  { id: 'empresarial', label: 'Empresarial', color: 'yellow' },
+  { id: 'otro', label: 'Otro', color: 'red' },
+];
 
 export const ORDER_STATUSES = [
   { id: 'quoted', label: '📝 Cotizado', color: 'yellow' },
@@ -21,6 +32,7 @@ export const ORDER_STATUSES = [
 export function getSalesHistory() { return salesHistory; }
 export function getExpensesHistory() { return expensesHistory; }
 export function getInventoryData() { return inventoryData; }
+export function getCatalogData() { return catalogData; }
 export function getTotalSavedUSDT() { return totalSavedUSDT; }
 
 export function getLowStockItems() {
@@ -73,6 +85,13 @@ export function startRealtimeSync() {
     listenDoc('config', 'ahorros', (data) => {
         totalSavedUSDT = data ? data.total || 0 : 0;
         updateAdminPanel();
+    });
+
+    // Catálogo público: no depende de currentUserId, cualquiera puede leerlo,
+    // pero aquí lo usamos para que el admin vea y gestione lo que sube.
+    listenPublicCatalog((data) => {
+        catalogData = data;
+        renderCatalogAdmin();
     });
 }
 
@@ -148,9 +167,7 @@ export async function editSale(id) {
     if (!confirm("Esto regresará la orden entera al carrito para que la edites. ¿Continuar?")) return;
 
     if (sale.items && sale.items.length > 0) {
-        // Must use global currentCart or window method since we import clearCart
-        window.currentCart = sale.items; // handled by modifying getter if needed, but we should import a setter or use clearCart
-        // Since getCart returns a reference, we can just push
+        window.currentCart = sale.items;
         const cart = getCart();
         cart.length = 0;
         sale.items.forEach(i => cart.push(i));
@@ -167,7 +184,6 @@ export async function editSale(id) {
 
     await removeDoc('ventas', id.toString());
     
-    // We need to call renderCart from window or export it
     if (window.renderCart) window.renderCart();
     calculate();
     window.showPage('calc');
@@ -494,13 +510,12 @@ export async function clearAllData() {
     if (!currentUserId) return;
     if (safeConfirm("🚨 ¿BORRAR DEFINITIVAMENTE TODOS LOS DATOS DE LA NUBE?", "BORRAR")) {
         
-        // Simple JSON backup
         const backup = { sales: salesHistory, expenses: expensesHistory, inventory: inventoryData };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
         const dlAnchorElem = document.getElementById('downloadAnchorElem') || document.createElement('a');
         dlAnchorElem.setAttribute("href", dataStr);
         dlAnchorElem.setAttribute("download", "backup.json");
-        document.body.appendChild(dlAnchorElem); // required for firefox
+        document.body.appendChild(dlAnchorElem);
         dlAnchorElem.click();
         dlAnchorElem.remove();
 
@@ -586,4 +601,87 @@ export function generateQuoteView() {
 export function closeQuoteView() {
     const overlay = document.getElementById('quoteOverlay');
     if (overlay) overlay.classList.add('hidden');
+}
+
+// --- CATÁLOGO (fotos que se ven en index.html) ---
+export async function addCatalogItem() {
+    const nameInput = document.getElementById('catName');
+    const priceInput = document.getElementById('catPrice');
+    const categoryInput = document.getElementById('catCategory');
+    const fileInput = document.getElementById('catPhoto');
+    const btn = document.getElementById('btnSaveCatalog');
+
+    const name = nameInput?.value?.trim();
+    const price = parseFloat(priceInput?.value) || 0;
+    const category = categoryInput?.value || 'otro';
+    const file = fileInput?.files?.[0];
+
+    if (!name) return showToast("Escribe el nombre de la pieza");
+    if (!file) return showToast("Selecciona una foto");
+
+    const itemId = Date.now().toString();
+
+    try {
+        if (btn) { btn.disabled = true; btn.textContent = "Comprimiendo foto..."; }
+        const imageBase64 = await compressImageFile(file);
+        if (btn) { btn.textContent = "Guardando..."; }
+        await saveCatalogItem(itemId, {
+            id: itemId, name, price, category, imageBase64,
+            date: new Date().toLocaleDateString(),
+            timestamp: Date.now()
+        });
+
+        if (nameInput) nameInput.value = '';
+        if (priceInput) priceInput.value = '';
+        if (fileInput) fileInput.value = '';
+        showToast("💖 Foto subida al catálogo público");
+    } catch (e) {
+        console.error(e);
+        showToast("Error al subir la foto");
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = "+ Subir al Catálogo"; }
+    }
+}
+
+export async function removeCatalogItem(id) {
+    if (!confirm("¿Quitar esta pieza del catálogo público?")) return;
+    await deleteCatalogItem(id.toString());
+    showToast("Pieza eliminada del catálogo");
+}
+
+export function renderCatalogAdmin() {
+    const list = document.getElementById('catalogAdminList');
+    if (!list) return;
+
+    list.innerHTML = '';
+    if (catalogData.length === 0) {
+        list.appendChild(createElement('p', 'text-center text-gray-500 text-[10px] py-10 font-bold uppercase', 'Aún no has subido fotos'));
+        return;
+    }
+
+    [...catalogData].reverse().forEach(item => {
+        const container = createElement('div', 'flex items-center gap-3 bg-white/5 p-2 rounded-xl border border-white/5 mb-2');
+
+        const img = document.createElement('img');
+        img.src = item.imageBase64;
+        img.className = 'w-14 h-14 object-cover rounded-lg';
+        img.style.width = '56px';
+        img.style.height = '56px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '10px';
+
+        const infoDiv = createElement('div', 'flex-1 truncate');
+        infoDiv.appendChild(createElement('p', 'text-[11px] font-black uppercase text-white truncate', item.name));
+        const catLabel = CATALOG_CATEGORIES.find(c => c.id === item.category)?.label || item.category;
+        const priceText = item.price ? ` · $${item.price.toFixed(2)}` : '';
+        infoDiv.appendChild(createElement('p', 'text-[9px] text-pink-400 font-bold', `${catLabel}${priceText}`));
+
+        const btn = createElement('button', 'text-[10px] bg-red-500/10 text-red-500 hover:bg-red-500/20 px-2 py-1.5 rounded-lg transition-colors', '🗑️');
+        btn.onclick = () => removeCatalogItem(item.id);
+
+        container.appendChild(img);
+        container.appendChild(infoDiv);
+        container.appendChild(btn);
+        list.appendChild(container);
+    });
 }
