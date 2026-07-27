@@ -142,14 +142,14 @@ function compressImage(file) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // Convert to WebP for best compression/quality, fallback to jpeg
+                // Convert to JPEG for best compression/quality/compatibility
                 canvas.toBlob((blob) => {
                     if (!blob) {
                         reject(new Error("No se pudo comprimir la imagen"));
                         return;
                     }
                     resolve(blob);
-                }, 'image/webp', 0.8);
+                }, 'image/jpeg', 0.85);
             };
             img.onerror = error => reject(error);
         };
