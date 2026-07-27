@@ -406,6 +406,18 @@ export async function editInvItem(id) {
 
 export function renderInventory() {
     const list = document.getElementById('inventoryList');
+    
+    const extraSelect = document.getElementById('extraInvSelect');
+    if (extraSelect) {
+        extraSelect.innerHTML = '<option value="">Selecciona extra de tu Stock...</option>';
+        inventoryData.filter(i => i.type === 'Bisuteria' || i.type === 'Empaque').forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = JSON.stringify({id: item.id, name: item.name, price: item.price || 0});
+            opt.textContent = `${item.name} ($${item.price || 0})`;
+            extraSelect.appendChild(opt);
+        });
+    }
+
     if (!list) return;
 
     list.innerHTML = '';

@@ -103,48 +103,8 @@
                 <p class="text-secondary max-w-md mx-auto">Soluciones a medida para cada necesidad. Si puedes imaginarlo, podemos imprimirlo.</p>
             </div>
             
-            <div class="grid-3 gap-4">
-                <div class="service-card scroll-reveal">
-                    <span class="service-icon">🔑</span>
-                    <h3 class="heading-sm mb-2">Llaveros y Accesorios</h3>
-                    <p class="text-muted text-sm mb-4 flex-grow">Llaveros personalizados con nombres, logos corporativos o figuras favoritas.</p>
-                    <div class="text-pink font-bold text-sm">Desde $3</div>
-                </div>
-                
-                <div class="service-card scroll-reveal" style="transition-delay: 0.1s;">
-                    <span class="service-icon">🎨</span>
-                    <h3 class="heading-sm mb-2">Decoración 3D</h3>
-                    <p class="text-muted text-sm mb-4 flex-grow">Figuras decorativas, macetas geométricas, porta velas, lámparas y arte para el hogar.</p>
-                    <div class="text-pink font-bold text-sm">Desde $5</div>
-                </div>
-                
-                <div class="service-card scroll-reveal" style="transition-delay: 0.2s;">
-                    <span class="service-icon">⚙️</span>
-                    <h3 class="heading-sm mb-2">Piezas Técnicas</h3>
-                    <p class="text-muted text-sm mb-4 flex-grow">Repuestos difíciles de encontrar, soportes para electrónica, engranajes y piezas funcionales.</p>
-                    <div class="text-pink font-bold text-sm">Desde $8</div>
-                </div>
-                
-                <div class="service-card scroll-reveal" style="transition-delay: 0.3s;">
-                    <span class="service-icon">🎮</span>
-                    <h3 class="heading-sm mb-2">Gaming & Cosplay</h3>
-                    <p class="text-muted text-sm mb-4 flex-grow">Props para cosplay, miniaturas de juegos de mesa, mods para joysticks y soportes gamer.</p>
-                    <div class="text-pink font-bold text-sm">Desde $10</div>
-                </div>
-                
-                <div class="service-card scroll-reveal" style="transition-delay: 0.4s;">
-                    <span class="service-icon">💍</span>
-                    <h3 class="heading-sm mb-2">Personalización Premium</h3>
-                    <p class="text-muted text-sm mb-4 flex-grow">Diseño desde cero basado en tu idea. Modelado 3D profesional y acabado post-procesado.</p>
-                    <div class="text-pink font-bold text-sm">Desde $25</div>
-                </div>
-                
-                <div class="service-card scroll-reveal" style="transition-delay: 0.5s;">
-                    <span class="service-icon">🏗️</span>
-                    <h3 class="heading-sm mb-2">Ingeniería</h3>
-                    <p class="text-muted text-sm mb-4 flex-grow">Prototipos funcionales, pruebas de concepto y piezas con alta tolerancia y resistencia.</p>
-                    <div class="text-pink font-bold text-sm">Consulta precio</div>
-                </div>
+            <div id="publicServicesGrid" class="grid-3 gap-4">
+                <p class="text-center col-span-full text-muted">Cargando servicios...</p>
             </div>
         </div>
     </section>
@@ -272,11 +232,16 @@
             <div class="price-card text-center scroll-reveal">
                 <h2 class="heading-lg mb-4">¿Listo para crear tu pieza?</h2>
                 <p class="text-secondary mb-6 max-w-md mx-auto">Escríbenos ahora mismo y hagamos realidad esa idea que tienes en mente.</p>
-                <a href="https://wa.me/584129938669" target="_blank" class="btn btn-lg btn-success font-bold px-8">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                    Contactar por WhatsApp
-                </a>
-                <p class="mt-4 text-sm text-muted">También puedes visitarnos en Instagram: <a href="https://www.instagram.com/itsminevzla" target="_blank" class="text-pink hover:underline">@itsminevzla</a></p>
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <a href="https://wa.me/584129938669" target="_blank" class="btn btn-lg btn-success font-bold px-8 w-full sm:w-auto">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        WhatsApp
+                    </a>
+                    <a href="https://www.instagram.com/itsminevzla" target="_blank" class="btn btn-lg font-bold px-8 w-full sm:w-auto" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        Instagram
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -355,8 +320,10 @@
         import { collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         let clientRates = { euro: 1, binance: 1 };
-        let cart = [];
         let catalog = [];
+        let categories = [];
+        let cart = [];
+
         // Scroll Reveal Animation
         const observerOptions = {
             root: null,
@@ -397,6 +364,59 @@
             } catch (error) {
                 console.error("Error fetching rates:", error);
             }
+        }
+
+        // Fetch Categories
+        async function fetchCategories() {
+            try {
+                const q = query(collection(db, 'categorias_publico'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                categories = [];
+                querySnapshot.forEach(doc => {
+                    categories.push({ id: doc.id, ...doc.data() });
+                });
+                renderServices();
+            } catch (error) {
+                console.error("Error fetching categories", error);
+            }
+        }
+
+        function renderServices() {
+            const grid = document.getElementById('publicServicesGrid');
+            grid.innerHTML = '';
+            
+            if (categories.length === 0) {
+                grid.innerHTML = '<p class="text-center col-span-full text-muted">Pronto añadiremos nuestros servicios.</p>';
+                return;
+            }
+
+            categories.forEach((cat, index) => {
+                const delay = (index * 0.1).toFixed(1);
+                const card = document.createElement('div');
+                card.className = 'service-card scroll-reveal';
+                card.style.transitionDelay = `${delay}s`;
+                
+                card.innerHTML = `
+                    <span class="service-icon">${cat.emoji || '✨'}</span>
+                    <h3 class="heading-sm mb-2">${cat.name}</h3>
+                    <p class="text-muted text-sm mb-4 flex-grow">${cat.description || ''}</p>
+                    <div class="text-pink font-bold text-sm">${cat.basePrice ? 'Desde $' + cat.basePrice : 'Consultar'}</div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            // Re-observe new elements
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('#publicServicesGrid .scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
         }
 
         // Fetch Catalog
@@ -535,6 +555,7 @@
         // Init
         document.addEventListener('DOMContentLoaded', () => {
             fetchClientRates();
+            fetchCategories();
             fetchCatalog();
             setInterval(fetchClientRates, 300000);
         });

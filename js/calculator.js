@@ -1,7 +1,8 @@
 import { formatUSD, formatBS, showToast, setText, createElement } from './utils.js';
 
-let currentCalc = { usd: 0, bs: 0, costs: {}, jobName: '' };
+let currentCalc = { usd: 0, bs: 0, costs: {}, jobName: '', extras: [] };
 let currentCart = [];
+let calcExtras = []; // Local array for extras of current calculation
 let rates = { bcv: 1, binance: 1 };
 
 export const MATERIALS = [
@@ -76,7 +77,8 @@ export function calculate() {
     const designExtra = parseFloat(document.getElementById('disenoSelect')?.value) || 0;
     const delivery = parseFloat(document.getElementById('delivery')?.value) || 0;
     
-    const mPrice = parseFloat(document.getElementById('machinePrice')?.value) || 400;
+    const elecRate = parseFloat(document.getElementById('elecRate')?.value) || 0.05;
+    const wearRate = parseFloat(document.getElementById('machineWearRate')?.value) || 0.10;
     const margin = parseFloat(document.getElementById('profitMargin')?.value) || 2.0;
 
     const materialSelect = document.getElementById('materialSelect');
@@ -98,16 +100,20 @@ export function calculate() {
     const horas = horasRaw * timeFactor;
     
     const matCost = (materialPrice / 1000) * peso;
-    const wearCost = (mPrice / 4000) * horas;
-    const risk = (matCost + wearCost) * 0.05;
+    const wearCost = wearRate * horas;
+    const elecCost = elecRate * horas;
+    const risk = (matCost + wearCost + elecCost) * 0.05;
 
-    const production = matCost + wearCost + risk;
+    const production = matCost + wearCost + elecCost + risk;
     
-    const totalUSD = (production * margin) + manoObra + designExtra + delivery;
+    // Sum of extras
+    const extrasTotal = calcExtras.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    
+    const totalUSD = (production * margin) + manoObra + designExtra + delivery + extrasTotal;
     const totalBS = totalUSD * rates.binance;
 
     const cMat = matCost + risk; 
-    let gananciaBruta = totalUSD - cMat - wearCost - delivery;
+    let gananciaBruta = totalUSD - cMat - wearCost - elecCost - delivery - extrasTotal;
     
     let aporteMaquina = 0;
     if (gananciaBruta > 0) {
@@ -117,7 +123,7 @@ export function calculate() {
         }
     }
 
-    const cWear = wearCost + aporteMaquina;
+    const cWear = wearCost + elecCost + aporteMaquina;
     const cProfit = gananciaBruta - aporteMaquina;
 
     currentCalc = {
@@ -125,6 +131,7 @@ export function calculate() {
         bs: totalBS,
         jobName: document.getElementById('jobName')?.value || "Pieza 3D",
         costs: { mat: cMat, wear: cWear, profit: cProfit, delivery: delivery },
+        extras: [...calcExtras],
         rawInputs: { 
             peso, 
             horas: horasRaw, 
@@ -139,7 +146,7 @@ export function calculate() {
 
     const resWearAuto = document.getElementById('resWearAuto');
     if (resWearAuto) {
-        resWearAuto.value = formatUSD(wearCost);
+        resWearAuto.value = formatUSD(wearCost + elecCost);
     }
 
     const resTotal = document.getElementById('resTotalUSD');
@@ -151,25 +158,75 @@ export function calculate() {
 export function addToCart() {
     if (currentCalc.usd <= 0) return showToast("La pieza está en $0.00");
     
-    currentCart.push(JSON.parse(JSON.stringify(currentCalc)));
-    
-    const elIds = ['jobName', 'peso', 'horas', 'postHrs', 'delivery'];
-    elIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
+    const name = currentCalc.jobName || "Pieza sin nombre";
+    currentCart.push({
+        id: Date.now().toString(),
+        jobName: name,
+        usd: currentCalc.usd,
+        bs: currentCalc.bs,
+        costs: currentCalc.costs,
+        rawInputs: currentCalc.rawInputs,
+        extras: currentCalc.extras
     });
     
-    const disenoEl = document.getElementById('disenoSelect');
-    if (disenoEl) disenoEl.selectedIndex = 0;
-    
-    calculate(); 
+    // Clear current calc and extras
+    document.getElementById('jobName').value = '';
+    calcExtras = [];
+    renderCalcExtras();
+    calculate();
     renderCart();
-    showToast("🛒 Pieza añadida a la orden");
+    showToast("Añadido a la orden");
 }
 
 export function removeFromCart(index) {
     currentCart.splice(index, 1);
     renderCart();
+}
+
+// Extra Materials Logic
+export function addExtraToCalc() {
+    const select = document.getElementById('extraInvSelect');
+    const qtyInput = document.getElementById('extraInvQty');
+    
+    if (!select || !select.value || !qtyInput.value) return;
+    
+    // Parse value as JSON (set by updateExtraSelect in sales.js)
+    const itemData = JSON.parse(select.value);
+    const qty = parseInt(qtyInput.value) || 1;
+    
+    calcExtras.push({
+        invId: itemData.id,
+        name: itemData.name,
+        price: itemData.price,
+        qty: qty
+    });
+    
+    qtyInput.value = '1';
+    renderCalcExtras();
+    calculate();
+}
+
+export function removeExtraFromCalc(index) {
+    calcExtras.splice(index, 1);
+    renderCalcExtras();
+    calculate();
+}
+
+function renderCalcExtras() {
+    const list = document.getElementById('calcExtrasList');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    calcExtras.forEach((extra, index) => {
+        const row = createElement('div', 'flex justify-between items-center text-white border-b border-white/10 pb-1');
+        row.innerHTML = `<span>${extra.qty}x ${extra.name}</span> <span>$${(extra.price * extra.qty).toFixed(2)}</span>`;
+        
+        const btnDel = createElement('button', 'text-red hover:text-white ml-2', 'X');
+        btnDel.onclick = () => removeExtraFromCalc(index);
+        
+        row.appendChild(btnDel);
+        list.appendChild(row);
+    });
 }
 
 export function renderCart() {

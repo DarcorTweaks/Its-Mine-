@@ -1,9 +1,10 @@
 import { db, storage } from './firebase.js';
 import { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 import { formatUSD, showToast, createElement } from './utils.js';
 
 let catalogItems = [];
+let categories = [];
 
 export function startCatalogSync() {
     onSnapshot(collection(db, 'catalogo_publico'), (snapshot) => {
@@ -15,18 +16,117 @@ export function startCatalogSync() {
     }, (error) => {
         console.error("Error catalog sync:", error);
     });
+
+    onSnapshot(collection(db, 'categorias_publico'), (snapshot) => {
+        categories = [];
+        snapshot.forEach(doc => {
+            categories.push({ id: doc.id, ...doc.data() });
+        });
+        renderCategoriesAdmin();
+        updateCategorySelects();
+    }, (error) => {
+        console.error("Error categories sync:", error);
+    });
 }
+
+export async function addCategory() {
+    const nameEl = document.getElementById('catNameInput');
+    const emojiEl = document.getElementById('catEmojiInput');
+    const priceEl = document.getElementById('catBasePriceInput');
+    const descEl = document.getElementById('catDescInput');
+    const btnAdd = document.getElementById('btnAddCategory');
+    
+    if (!nameEl.value || !emojiEl.value || !priceEl.value || !descEl.value) {
+        return showToast("Completa todos los campos de la categoría");
+    }
+    
+    btnAdd.disabled = true;
+    try {
+        await addDoc(collection(db, 'categorias_publico'), {
+            name: nameEl.value,
+            emoji: emojiEl.value,
+            basePrice: parseFloat(priceEl.value),
+            description: descEl.value,
+            createdAt: Date.now()
+        });
+        showToast("Categoría añadida");
+        nameEl.value = '';
+        emojiEl.value = '';
+        priceEl.value = '';
+        descEl.value = '';
+    } catch (e) {
+        showToast("Error al añadir categoría");
+    } finally {
+        btnAdd.disabled = false;
+    }
+}
+
+export async function deleteCategory(id) {
+    if (confirm("¿Estás seguro de borrar esta categoría?")) {
+        try {
+            await deleteDoc(doc(db, 'categorias_publico', id));
+            showToast("Categoría eliminada");
+        } catch (e) {
+            showToast("Error al eliminar");
+        }
+    }
+}
+
+function updateCategorySelects() {
+    const select = document.getElementById('catCategory');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Selecciona Categoría...</option>';
+    categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.name;
+        opt.textContent = cat.name;
+        select.appendChild(opt);
+    });
+}
+
+export function renderCategoriesAdmin() {
+    const list = document.getElementById('categoryList');
+    if (!list) return;
+
+    if (categories.length === 0) {
+        list.innerHTML = '<p class="text-sm text-muted text-center py-4">No hay categorías</p>';
+        return;
+    }
+
+    list.innerHTML = '';
+    
+    categories.sort((a, b) => b.createdAt - a.createdAt).forEach(item => {
+        const row = createElement('div', 'flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5 mb-2');
+        
+        const infoDiv = createElement('div', 'flex-col');
+        const nameP = createElement('p', 'text-sm font-bold text-white', `${item.emoji} ${item.name}`);
+        const detailsP = createElement('p', 'text-xxs text-muted', `Desde $${item.basePrice.toFixed(2)} - ${item.description}`);
+        
+        infoDiv.appendChild(nameP);
+        infoDiv.appendChild(detailsP);
+        
+        const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white', 'X');
+        btnDelete.onclick = () => deleteCategory(item.id);
+        
+        row.appendChild(infoDiv);
+        row.appendChild(btnDelete);
+        list.appendChild(row);
+    });
+}
+
 
 export async function addCatalogItem() {
     const nameEl = document.getElementById('catName');
     const priceEl = document.getElementById('catPrice');
     const descEl = document.getElementById('catDesc');
     const imageEl = document.getElementById('catImage');
+    const catEl = document.getElementById('catCategory');
     const btnAdd = document.getElementById('btnAddCatalog');
     const statusEl = document.getElementById('catUploadStatus');
     
-    if (!nameEl.value || !priceEl.value || !descEl.value) {
-        return showToast("Completa los datos del producto");
+    if (!nameEl.value || !priceEl.value || !descEl.value || !catEl.value) {
+        return showToast("Completa los datos y selecciona una categoría");
     }
 
     if (!imageEl.files || imageEl.files.length === 0) {
@@ -36,12 +136,13 @@ export async function addCatalogItem() {
     const file = imageEl.files[0];
     
     btnAdd.disabled = true;
-    statusEl.classList.remove('hidden');
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Subiendo imagen a Firebase...';
     
     try {
-        // Upload image to Storage
+        // Upload image to Storage using uploadBytes (more reliable for simple files)
         const storageRef = ref(storage, `catalog/${Date.now()}_${file.name}`);
-        const uploadTask = await uploadBytesResumable(storageRef, file);
+        const uploadTask = await uploadBytes(storageRef, file);
         const imageUrl = await getDownloadURL(uploadTask.ref);
 
         // Save to Firestore
@@ -49,6 +150,7 @@ export async function addCatalogItem() {
             name: nameEl.value,
             price: parseFloat(priceEl.value),
             description: descEl.value,
+            category: catEl.value,
             imageUrl: imageUrl,
             createdAt: Date.now()
         });
@@ -60,13 +162,14 @@ export async function addCatalogItem() {
         priceEl.value = '';
         descEl.value = '';
         imageEl.value = '';
+        catEl.value = '';
         
     } catch (error) {
         console.error("Error adding catalog item:", error);
-        showToast("Error al subir el producto");
+        alert("ERROR SUBIENDO FOTO:\n" + error.message + "\n\n¿Activaste Storage en Firebase y pegaste las reglas correctamente?");
     } finally {
         btnAdd.disabled = false;
-        statusEl.classList.add('hidden');
+        statusEl.style.display = 'none';
     }
 }
 
@@ -103,9 +206,11 @@ export function renderCatalogAdmin() {
         
         const textDiv = createElement('div', 'flex-col');
         const nameP = createElement('p', 'text-sm font-bold text-white', item.name);
+        const catP = createElement('p', 'text-xxs text-pink', item.category || 'Sin Categoría');
         const priceP = createElement('p', 'text-xs font-bold text-green', formatUSD(item.price));
         
         textDiv.appendChild(nameP);
+        textDiv.appendChild(catP);
         textDiv.appendChild(priceP);
         
         info.appendChild(img);

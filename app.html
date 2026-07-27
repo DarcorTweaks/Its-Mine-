@@ -114,7 +114,7 @@
 
         <div class="glass-panel flex-col gap-3">
           <h3 class="heading-sm font-black text-pink uppercase flex-center gap-2" style="justify-content: flex-start;">
-            <span class="status-dot" style="background: var(--accent-pink);"></span> 3. Extras
+            <span class="status-dot" style="background: var(--accent-pink);"></span> 3. Extras y Ensamblaje
           </h3>
           <div class="flex-col gap-3">
             <select id="disenoSelect" class="select-pro font-bold text-sm">
@@ -125,6 +125,18 @@
               <option value="50">Ingeniería (Pieza Técnica) - $50</option>
             </select>
             <input type="number" id="delivery" class="input-pro font-bold" placeholder="Logística / Envío ($)">
+          </div>
+          
+          <div class="flex-col gap-2 mt-2 pt-2" style="border-top: 1px solid rgba(255,105,180,0.2);">
+            <label class="text-xxs font-bold text-pink uppercase">Materiales Extra (Bisutería, Cadenas...)</label>
+            <div class="flex gap-2">
+                <select id="extraInvSelect" class="select-pro flex-1 text-sm">
+                    <option value="">Selecciona extra de tu Stock...</option>
+                </select>
+                <input type="number" id="extraInvQty" class="input-pro w-16" placeholder="Cant." value="1" min="1">
+                <button id="btnAddExtraItem" class="btn btn-secondary font-black">+</button>
+            </div>
+            <div id="calcExtrasList" class="flex-col gap-1 mt-1 text-xs"></div>
           </div>
         </div>
 
@@ -249,8 +261,12 @@
           </div>
           <div class="grid-2 gap-2 mt-2">
             <div class="flex-col">
-              <label class="text-xxs text-muted uppercase">Precio Máquina</label>
-              <input type="number" id="machinePrice" value="400" class="input-pro">
+              <label class="text-xxs text-muted uppercase">Desgaste Máquina ($/Hr)</label>
+              <input type="number" id="machineWearRate" value="0.10" step="0.01" class="input-pro">
+            </div>
+            <div class="flex-col">
+              <label class="text-xxs text-muted uppercase">Luz ($/Hr)</label>
+              <input type="number" id="elecRate" value="0.05" step="0.01" class="input-pro">
             </div>
           </div>
         </div>
@@ -348,7 +364,8 @@
             <input type="number" id="invPrice" class="input-pro font-bold" placeholder="Precio $">
           </div>
           <select id="invType" class="select-pro font-bold">
-            <option value="PLA">Rollo PLA</option>
+            <option value="PLA">Rollo Filamento</option>
+            <option value="Bisuteria">Bisutería / Extra</option>
             <option value="Empaque">Bolsa / Caja</option>
             <option value="Otro">Otro</option>
           </select>
@@ -363,12 +380,35 @@
 
       <!-- TAB 6: CATALOG -->
       <section id="catalogPage" class="page flex-col gap-4">
+        
+        <!-- Manage Categories -->
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-rose uppercase">Categorías y Servicios</h3>
+          <p class="text-xs text-muted mb-2">Las categorías que crees aquí aparecerán como "Servicios" en la página principal.</p>
+          <div class="grid-2 gap-2">
+            <input type="text" id="catNameInput" class="input-pro" placeholder="Nombre (Ej: Cadenas y collares)">
+            <input type="text" id="catEmojiInput" class="input-pro" placeholder="Emoji (Ej: 📿)">
+          </div>
+          <div class="grid-2 gap-2">
+            <input type="number" id="catBasePriceInput" class="input-pro" placeholder="Precio Base ($)">
+            <input type="text" id="catDescInput" class="input-pro" placeholder="Descripción breve">
+          </div>
+          <button id="btnAddCategory" class="btn btn-primary mt-1">Añadir Categoría</button>
+          
+          <div id="categoryList" class="flex-col gap-2 mt-2 max-h-[200px] overflow-y-auto">
+            <p class="text-sm text-muted text-center py-2">Cargando...</p>
+          </div>
+        </div>
+
         <div class="glass-panel flex-col gap-3">
           <h3 class="heading-sm font-black text-pink uppercase">Añadir al Catálogo</h3>
           <div class="grid-2 gap-2">
             <input type="text" id="catName" class="input-pro" placeholder="Nombre (ej. Llavero)">
             <input type="number" id="catPrice" class="input-pro" placeholder="Precio ($)">
           </div>
+          <select id="catCategory" class="select-pro font-bold w-full">
+            <option value="">Selecciona Categoría...</option>
+          </select>
           <input type="text" id="catDesc" class="input-pro" placeholder="Descripción breve">
           <div class="flex-col gap-1 mt-2">
             <label class="text-xxs text-muted uppercase">Foto del producto</label>
@@ -419,7 +459,7 @@
   <!-- MODULE SCRIPT -->
   <script type="module">
     import { initAuth, onAuthReady, loginWithEmail, logout } from './js/firebase.js';
-    import { calculate, addToCart, removeFromCart, renderCart, getCart, clearCart, fetchRates, getRates, updateRatesDisplay, setRates } from './js/calculator.js';
+    import { calculate, addToCart, removeFromCart, renderCart, getCart, clearCart, fetchRates, getRates, updateRatesDisplay, setRates, addExtraToCalc, removeExtraFromCalc } from './js/calculator.js';
     import { 
         startRealtimeSync, registerSale, deleteSale, editSale, updateSaleStatus,
         addExpense, deleteExpense, addInvItem, updateInvQty, deleteInvItem, editInvItem,
@@ -427,7 +467,7 @@
         generateQuoteView, closeQuoteView, filterSales,
         exportSalesCSV, exportExpensesCSV, exportInventoryCSV
     } from './js/sales.js';
-    import { startCatalogSync, addCatalogItem, deleteCatalogItem } from './js/catalog.js';
+    import { startCatalogSync, addCatalogItem, deleteCatalogItem, addCategory, deleteCategory } from './js/catalog.js';
     import { updateAdminPanel } from './js/dashboard.js';
     import { showToast, formatBS, formatUSD } from './js/utils.js';
 
@@ -442,6 +482,7 @@
     window.deleteInvItem = deleteInvItem;
     window.editInvItem = editInvItem;
     window.deleteCatalogItem = deleteCatalogItem;
+    window.deleteCategory = deleteCategory;
     window.fetchRates = fetchRates;
 
     const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory', 'catalog'];
@@ -547,6 +588,8 @@
     document.getElementById('btnSaveExpense')?.addEventListener('click', addExpense);
     document.getElementById('btnSaveInv')?.addEventListener('click', addInvItem);
     document.getElementById('btnAddCatalog')?.addEventListener('click', addCatalogItem);
+    document.getElementById('btnAddCategory')?.addEventListener('click', addCategory);
+    document.getElementById('btnAddExtraItem')?.addEventListener('click', addExtraToCalc);
     
     document.getElementById('btnSaveUSDT')?.addEventListener('click', addSavings);
     document.getElementById('btnClearUSDT')?.addEventListener('click', clearSavings);
