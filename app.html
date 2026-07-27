@@ -433,6 +433,7 @@
           <div class="flex-col gap-1 mt-2">
             <label class="text-xxs text-muted uppercase">Foto del producto</label>
             <input type="file" id="catImage" class="input-pro" accept="image/*" style="padding: 6px;">
+            <img id="catImagePreview" src="" alt="Vista previa" class="w-full h-32 object-cover rounded-md mt-2 hidden border border-white/10">
             <p id="catUploadStatus" class="text-xs text-yellow mt-1 hidden">Subiendo imagen...</p>
           </div>
           <button id="btnAddCatalog" class="btn btn-primary mt-2">Añadir Producto</button>
@@ -639,6 +640,22 @@
     document.getElementById('btnAddCategory')?.addEventListener('click', addCategory);
     document.getElementById('btnAddInvCategory')?.addEventListener('click', addInvCategory);
     document.getElementById('btnAddWebSvc')?.addEventListener('click', addWebSvc);
+
+    document.getElementById('catImage')?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        const preview = document.getElementById('catImagePreview');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '';
+            preview.classList.add('hidden');
+        }
+    });
     document.getElementById('btnAddExtraItem')?.addEventListener('click', addExtraToCalc);
     
     document.getElementById('btnSaveUSDT')?.addEventListener('click', addSavings);
