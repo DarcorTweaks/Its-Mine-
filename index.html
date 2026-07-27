@@ -29,7 +29,7 @@
                 <span>Tasas del día:</span>
             </div>
             <div class="flex gap-4">
-                <span class="text-white">BCV: <span id="rate-bcv" class="font-bold text-green">Cargando...</span> Bs</span>
+                <span class="text-white">EURO: <span id="rate-bcv" class="font-bold text-green">Cargando...</span> Bs</span>
                 <span class="text-white hidden sm:inline">Binance: <span id="rate-binance" class="font-bold text-yellow">Cargando...</span> Bs</span>
             </div>
         </div>
@@ -199,72 +199,9 @@
                 <h2 class="heading-lg mb-2">Nuestro <span class="text-pink">Trabajo</span></h2>
                 <p class="text-secondary max-w-md mx-auto">Explora algunas de nuestras creaciones y categorías más populares.</p>
             </div>
-            
-            <div class="gallery-grid">
-                <!-- CSS Art Cards representing portfolio items -->
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #4c0519, #be123c);">
-                    <div class="gallery-item-emoji">❤️</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-pink mb-2">Accesorio</span>
-                        <h4 class="font-bold">Llavero Corazón Low-Poly</h4>
-                    </div>
-                </div>
-                
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #172554, #1d4ed8);">
-                    <div class="gallery-item-emoji">📱</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-blue mb-2">Escritorio</span>
-                        <h4 class="font-bold">Soporte Articulado de Celular</h4>
-                    </div>
-                </div>
-                
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #052e16, #15803d);">
-                    <div class="gallery-item-emoji">🌱</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-green mb-2">Hogar</span>
-                        <h4 class="font-bold">Maceta Geométrica Bulbasaur</h4>
-                    </div>
-                </div>
-                
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #3b0764, #7e22ce);">
-                    <div class="gallery-item-emoji">🐉</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-pink mb-2">Coleccionables</span>
-                        <h4 class="font-bold">Miniatura Dragón Articulado</h4>
-                    </div>
-                </div>
-                
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #1f2937, #4b5563);">
-                    <div class="gallery-item-emoji">⚙️</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-yellow mb-2">Repuesto</span>
-                        <h4 class="font-bold">Engranaje Industrial PETG</h4>
-                    </div>
-                </div>
-                
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #451a03, #b45309);">
-                    <div class="gallery-item-emoji">👑</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-yellow mb-2">Empresarial</span>
-                        <h4 class="font-bold">Logo Corporativo 3D</h4>
-                    </div>
-                </div>
-                
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #450a0a, #b91c1c);">
-                    <div class="gallery-item-emoji">🎲</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-red mb-2">Juegos</span>
-                        <h4 class="font-bold">Set de Dados RPG Gigantes</h4>
-                    </div>
-                </div>
-                
-                <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #083344, #0e7490);">
-                    <div class="gallery-item-emoji">🎧</div>
-                    <div class="gallery-overlay">
-                        <span class="badge badge-blue mb-2">Setup Gamer</span>
-                        <h4 class="font-bold">Porta Auriculares Minimalista</h4>
-                    </div>
-                </div>
+            <div id="publicCatalogGrid" class="gallery-grid">
+                <!-- Los productos se cargarán dinámicamente aquí desde Firebase -->
+                <p class="text-secondary col-span-full text-center py-8">Cargando catálogo...</p>
             </div>
         </div>
     </section>
@@ -377,8 +314,49 @@
         </div>
     </footer>
 
+    <!-- Floating Cart Button -->
+    <button id="floatingCartBtn" class="fixed bottom-6 right-6 w-14 h-14 bg-rose rounded-full flex-center shadow-[0_0_20px_rgba(244,63,94,0.4)] z-50 hover:scale-110 transition-transform">
+        <span class="text-2xl">🛒</span>
+        <span id="cartBadge" class="absolute -top-2 -right-2 bg-yellow text-black font-black text-xs w-6 h-6 rounded-full flex-center hidden">0</span>
+    </button>
+
+    <!-- Cart Overlay -->
+    <div id="cartOverlay" class="quote-overlay hidden z-[100]" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);">
+        <div class="quote-card glass-panel flex-col gap-4 max-w-sm w-full m-4">
+            <div class="flex-between border-b border-glass-border pb-2">
+                <h3 class="heading-sm font-black text-pink">🛒 Tu Carrito</h3>
+                <button id="btnCloseCart" class="btn btn-sm btn-ghost text-muted text-xl">&times;</button>
+            </div>
+            
+            <div id="cartItemsList" class="flex-col gap-2 max-h-[50vh] overflow-y-auto">
+                <p class="text-center text-muted text-sm py-4">El carrito está vacío</p>
+            </div>
+            
+            <div class="border-t border-glass-border pt-2 flex-col gap-1">
+                <div class="flex-between">
+                    <span class="text-sm font-bold">Total (USD):</span>
+                    <span id="cartTotalUSD" class="text-lg font-black text-green">$0.00</span>
+                </div>
+                <div class="flex-between">
+                    <span class="text-xs text-muted">Total (Bs - Tasa Euro):</span>
+                    <span id="cartTotalBs" class="text-sm font-bold text-yellow">Bs. 0.00</span>
+                </div>
+            </div>
+            
+            <button id="btnCheckout" class="btn btn-primary w-full mt-2 font-bold uppercase disabled:opacity-50" disabled>
+                Enviar Pedido por WhatsApp
+            </button>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <script>
+    <script type="module">
+        import { db } from './js/firebase.js';
+        import { collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        let clientRates = { euro: 1, binance: 1 };
+        let cart = [];
+        let catalog = [];
         // Scroll Reveal Animation
         const observerOptions = {
             root: null,
@@ -400,35 +378,167 @@
         });
 
         // Fetch Exchange Rates
-        async function fetchRates() {
+        async function fetchClientRates() {
             try {
-                const response = await fetch('https://pydolarvenezuela-api.vercel.app/api/v1/dollar');
-                if (!response.ok) throw new Error('API Error');
-                const data = await response.json();
-                
-                if(data.monitors && data.monitors.bcv) {
-                    document.getElementById('rate-bcv').textContent = parseFloat(data.monitors.bcv.price).toFixed(2);
-                } else {
-                    document.getElementById('rate-bcv').textContent = "---";
+                const resE = await fetch('https://ve.dolarapi.com/v1/euros');
+                const dataE = await resE.json();
+                if (dataE.length > 0 && dataE[0].promedio) {
+                    clientRates.euro = dataE[0].promedio;
+                    document.getElementById('rate-bcv').textContent = clientRates.euro.toFixed(2); // Using BCV spot for Euro
                 }
                 
-                if(data.monitors && data.monitors.binance) {
-                    document.getElementById('rate-binance').textContent = parseFloat(data.monitors.binance.price).toFixed(2);
-                } else {
-                    document.getElementById('rate-binance').textContent = "---";
+                const resP = await fetch('https://ve.dolarapi.com/v1/dolares/paralelo');
+                const dataP = await resP.json();
+                if (dataP.promedio) {
+                    clientRates.binance = dataP.promedio;
+                    document.getElementById('rate-binance').textContent = clientRates.binance.toFixed(2);
                 }
+                updateCartTotals();
             } catch (error) {
                 console.error("Error fetching rates:", error);
-                document.getElementById('rate-bcv').textContent = "Err";
-                document.getElementById('rate-binance').textContent = "Err";
             }
         }
 
+        // Fetch Catalog
+        async function fetchCatalog() {
+            try {
+                const q = query(collection(db, 'catalogo_publico'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                catalog = [];
+                querySnapshot.forEach(doc => {
+                    catalog.push({ id: doc.id, ...doc.data() });
+                });
+                renderPublicCatalog();
+            } catch (error) {
+                console.error("Error fetching catalog", error);
+                document.getElementById('publicCatalogGrid').innerHTML = '<p class="text-red text-center col-span-full">Error al cargar el catálogo</p>';
+            }
+        }
+
+        function renderPublicCatalog() {
+            const grid = document.getElementById('publicCatalogGrid');
+            grid.innerHTML = '';
+            
+            if (catalog.length === 0) {
+                grid.innerHTML = '<p class="text-secondary text-center col-span-full py-8">Aún no hay productos en el catálogo.</p>';
+                return;
+            }
+
+            catalog.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'glass-panel flex-col overflow-hidden p-0 relative group';
+                card.style.height = '280px';
+                
+                card.innerHTML = `
+                    <div class="h-40 w-full bg-black relative">
+                        <img src="${item.imageUrl}" alt="${item.name}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                        <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md border border-white/10">
+                            <span class="text-green font-black">$${item.price.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="p-3 flex-col flex-1 justify-between">
+                        <div>
+                            <h4 class="font-bold text-sm truncate">${item.name}</h4>
+                            <p class="text-xs text-muted truncate">${item.description}</p>
+                        </div>
+                        <button class="btn btn-sm btn-secondary w-full mt-2" onclick="window.addToClientCart('${item.id}')">
+                            Añadir al Carrito
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Cart Logic
+        window.addToClientCart = function(id) {
+            const item = catalog.find(p => p.id === id);
+            if (!item) return;
+            cart.push(item);
+            updateCartUI();
+        };
+
+        window.removeFromClientCart = function(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        };
+
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            if (cart.length > 0) {
+                badge.textContent = cart.length;
+                badge.classList.remove('hidden');
+                document.getElementById('btnCheckout').disabled = false;
+            } else {
+                badge.classList.add('hidden');
+                document.getElementById('btnCheckout').disabled = true;
+            }
+
+            const list = document.getElementById('cartItemsList');
+            list.innerHTML = '';
+            
+            if (cart.length === 0) {
+                list.innerHTML = '<p class="text-center text-muted text-sm py-4">El carrito está vacío</p>';
+            } else {
+                cart.forEach((item, index) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex justify-between items-center bg-white/5 p-2 rounded-lg border border-white/5';
+                    row.innerHTML = `
+                        <div class="flex-col">
+                            <span class="text-sm font-bold text-white">${item.name}</span>
+                            <span class="text-xs text-green">$${item.price.toFixed(2)}</span>
+                        </div>
+                        <button class="text-red hover:text-rose p-2" onclick="window.removeFromClientCart(${index})">🗑️</button>
+                    `;
+                    list.appendChild(row);
+                });
+            }
+            updateCartTotals();
+        }
+
+        function updateCartTotals() {
+            const totalUSD = cart.reduce((acc, item) => acc + item.price, 0);
+            const totalBs = totalUSD * clientRates.euro;
+            
+            document.getElementById('cartTotalUSD').textContent = `$${totalUSD.toFixed(2)}`;
+            document.getElementById('cartTotalBs').textContent = `Bs. ${totalBs.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+        }
+
+        // Modal triggers
+        document.getElementById('floatingCartBtn').addEventListener('click', () => {
+            document.getElementById('cartOverlay').classList.remove('hidden');
+            document.getElementById('cartOverlay').classList.add('flex');
+        });
+        
+        document.getElementById('btnCloseCart').addEventListener('click', () => {
+            document.getElementById('cartOverlay').classList.add('hidden');
+            document.getElementById('cartOverlay').classList.remove('flex');
+        });
+
+        // Checkout logic
+        document.getElementById('btnCheckout').addEventListener('click', () => {
+            if (cart.length === 0) return;
+            
+            const totalUSD = cart.reduce((acc, item) => acc + item.price, 0);
+            const totalBs = totalUSD * clientRates.euro;
+            
+            let msg = "¡Hola! Me gustaría realizar el siguiente pedido:\n\n";
+            cart.forEach(item => {
+                msg += `- ${item.name} ($${item.price.toFixed(2)})\n`;
+            });
+            msg += `\n*Total USD:* $${totalUSD.toFixed(2)}\n`;
+            msg += `*Total Bs:* Bs. ${totalBs.toLocaleString('es-VE', {minimumFractionDigits:2})}\n`;
+            msg += `*(Calculado a tasa Euro)*`;
+            
+            const waLink = `https://wa.me/584129938669?text=${encodeURIComponent(msg)}`;
+            window.open(waLink, '_blank');
+        });
+
         // Init
         document.addEventListener('DOMContentLoaded', () => {
-            fetchRates();
-            // Update rates every 5 minutes
-            setInterval(fetchRates, 300000);
+            fetchClientRates();
+            fetchCatalog();
+            setInterval(fetchClientRates, 300000);
         });
     </script>
 </body>

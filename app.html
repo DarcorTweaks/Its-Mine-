@@ -56,6 +56,7 @@
         </h1>
         <div class="rates-bar flex-center gap-3">
           <span id="bcvStatus" class="badge badge-blue font-bold">BCV: --</span>
+          <span id="euroStatus" class="badge badge-pink font-bold">EURO: --</span>
           <span id="binanceStatus" class="badge badge-yellow font-bold">BINANCE: --</span>
         </div>
         <button id="btnLogout" class="btn btn-sm btn-ghost text-xxs uppercase absolute top-2 right-2 text-muted">Salir</button>
@@ -222,9 +223,19 @@
 
         <div class="glass-panel flex-col gap-3">
           <h3 class="text-xs font-black text-yellow uppercase">Configuración</h3>
-          <div class="grid-2 gap-2">
-            <input type="number" id="manualRate" class="input-pro font-bold" title="Tasa BCV">
-            <input type="number" id="binanceRateManual" class="input-pro font-bold" title="Tasa Binance">
+          <div class="grid-3 gap-2">
+            <div class="flex-col">
+              <label class="text-xxs text-muted uppercase">Tasa BCV</label>
+              <input type="number" id="manualRate" class="input-pro">
+            </div>
+            <div class="flex-col">
+              <label class="text-xxs text-muted uppercase">Tasa Euro</label>
+              <input type="number" id="euroRateManual" class="input-pro">
+            </div>
+            <div class="flex-col">
+              <label class="text-xxs text-muted uppercase">Tasa Binance</label>
+              <input type="number" id="binanceRateManual" class="input-pro">
+            </div>
           </div>
           <div class="grid-2 gap-2 mt-2">
             <div class="flex-col">
@@ -348,7 +359,33 @@
           <h3 class="text-xs font-black text-pink uppercase tracking-wide">Stock Sincronizado</h3>
           <div id="inventoryList" class="flex-col gap-2" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
+      </section>
 
+      <!-- TAB 6: CATALOG -->
+      <section id="catalogPage" class="page flex-col gap-4">
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-pink uppercase">Añadir al Catálogo</h3>
+          <div class="grid-2 gap-2">
+            <input type="text" id="catName" class="input-pro" placeholder="Nombre (ej. Llavero)">
+            <input type="number" id="catPrice" class="input-pro" placeholder="Precio ($)">
+          </div>
+          <input type="text" id="catDesc" class="input-pro" placeholder="Descripción breve">
+          <div class="flex-col gap-1 mt-2">
+            <label class="text-xxs text-muted uppercase">Foto del producto</label>
+            <input type="file" id="catImage" class="input-pro" accept="image/*" style="padding: 6px;">
+            <p id="catUploadStatus" class="text-xs text-yellow mt-1 hidden">Subiendo imagen...</p>
+          </div>
+          <button id="btnAddCatalog" class="btn btn-primary mt-2">Añadir Producto</button>
+        </div>
+
+        <div class="glass-panel flex-col gap-3">
+          <div class="flex-between">
+            <h3 class="heading-sm font-black text-rose uppercase">Catálogo Público</h3>
+          </div>
+          <div id="catalogList" class="flex-col gap-2">
+            <p class="text-sm text-muted text-center py-4">Cargando catálogo...</p>
+          </div>
+        </div>
       </section>
 
     </main>
@@ -370,6 +407,9 @@
       <button id="navInventory" class="nav-btn">
         <span>Stock</span>
       </button>
+      <button id="navCatalog" class="nav-btn">
+        <span>Catálogo</span>
+      </button>
     </nav>
   </div>
 
@@ -387,6 +427,7 @@
         generateQuoteView, closeQuoteView, filterSales,
         exportSalesCSV, exportExpensesCSV, exportInventoryCSV
     } from './js/sales.js';
+    import { startCatalogSync, addCatalogItem, deleteCatalogItem } from './js/catalog.js';
     import { updateAdminPanel } from './js/dashboard.js';
     import { showToast, formatBS, formatUSD } from './js/utils.js';
 
@@ -400,8 +441,10 @@
     window.updateInvQty = updateInvQty;
     window.deleteInvItem = deleteInvItem;
     window.editInvItem = editInvItem;
+    window.deleteCatalogItem = deleteCatalogItem;
+    window.fetchRates = fetchRates;
 
-    const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory'];
+    const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory', 'catalog'];
 
     window.showPage = function(pageId) {
         pages.forEach(p => {
@@ -436,17 +479,16 @@
     });
 
     // Rates manual update
-    const manualRate = document.getElementById('manualRate');
-    const binanceRateManual = document.getElementById('binanceRateManual');
-    const updateRatesFn = () => {
-        const b = parseFloat(manualRate.value) || 1;
-        const bi = parseFloat(binanceRateManual.value) || 1;
-        setRates(b, bi);
-        updateRatesDisplay();
-        calculate();
-    };
-    if (manualRate) manualRate.addEventListener('input', updateRatesFn);
-    if (binanceRateManual) binanceRateManual.addEventListener('input', updateRatesFn);
+    ['manualRate', 'binanceRateManual', 'euroRateManual'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', (e) => {
+            const bcv = document.getElementById('manualRate').value;
+            const bin = document.getElementById('binanceRateManual').value;
+            const eur = document.getElementById('euroRateManual').value;
+            setRates(bcv, bin, eur);
+            if (window.renderSales) window.renderSales();
+        });
+    });
 
     // Buttons
     document.getElementById('btnAddToCart')?.addEventListener('click', addToCart);
@@ -504,6 +546,7 @@
 
     document.getElementById('btnSaveExpense')?.addEventListener('click', addExpense);
     document.getElementById('btnSaveInv')?.addEventListener('click', addInvItem);
+    document.getElementById('btnAddCatalog')?.addEventListener('click', addCatalogItem);
     
     document.getElementById('btnSaveUSDT')?.addEventListener('click', addSavings);
     document.getElementById('btnClearUSDT')?.addEventListener('click', clearSavings);
@@ -547,6 +590,7 @@
             cloudStatus.style.background = 'green';
             cloudStatus.title = "Conectado";
             startRealtimeSync();
+            startCatalogSync();
         } else {
             loginOverlay.style.display = 'flex';
             appContainer.style.display = 'none';

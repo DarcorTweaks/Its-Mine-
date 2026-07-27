@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInWithCustomToken, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
 let firebaseConfig;
 if (typeof __firebase_config !== 'undefined') {
@@ -19,10 +20,11 @@ if (typeof __firebase_config !== 'undefined') {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const canvasAppId = typeof __app_id !== 'undefined' ? __app_id : 'its-mine-printer-3d';
 let currentUserId = null;
 
-export { db, auth, currentUserId };
+export { db, auth, storage, currentUserId };
 
 export function getColPath(colName) {
     if (typeof __app_id !== 'undefined') {

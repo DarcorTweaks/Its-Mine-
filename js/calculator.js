@@ -19,10 +19,6 @@ export const QUALITIES = [
 
 export function getCart() { return currentCart; }
 export function getRates() { return rates; }
-export function setRates(bcv, binance) { 
-    rates.bcv = bcv; 
-    rates.binance = binance; 
-}
 
 export function clearCart() { 
     currentCart = []; 
@@ -34,14 +30,25 @@ export async function fetchRates() {
         const resO = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
         const dataO = await resO.json();
         rates.bcv = dataO.promedio || 1;
+        
         const resP = await fetch('https://ve.dolarapi.com/v1/dolares/paralelo');
         const dataP = await resP.json();
         rates.binance = dataP.promedio || 1;
         
+        const resE = await fetch('https://ve.dolarapi.com/v1/euros');
+        const dataE = await resE.json();
+        if (dataE.length > 0 && dataE[0].promedio) {
+            rates.euro = dataE[0].promedio;
+        } else {
+            rates.euro = 1;
+        }
+        
         const manRate = document.getElementById('manualRate');
         const binRate = document.getElementById('binanceRateManual');
+        const eurRate = document.getElementById('euroRateManual');
         if (manRate) manRate.value = rates.bcv.toFixed(2);
         if (binRate) binRate.value = rates.binance.toFixed(2);
+        if (eurRate) eurRate.value = rates.euro.toFixed(2);
         
         updateRatesDisplay();
     } catch (e) { 
@@ -52,6 +59,14 @@ export async function fetchRates() {
 export function updateRatesDisplay() {
     setText('bcvStatus', `BCV: ${rates.bcv.toFixed(2)}`);
     setText('binanceStatus', `BINANCE: ${rates.binance.toFixed(2)}`);
+    setText('euroStatus', `EURO: ${rates.euro.toFixed(2)}`);
+}
+
+export function setRates(bcv, binance, euro) {
+    rates.bcv = parseFloat(bcv) || rates.bcv;
+    rates.binance = parseFloat(binance) || rates.binance;
+    rates.euro = parseFloat(euro) || rates.euro;
+    updateRatesDisplay();
 }
 
 export function calculate() {
