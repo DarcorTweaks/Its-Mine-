@@ -95,6 +95,32 @@
         </div>
     </section>
 
+    </header>
+
+    <!-- Portafolio / Galería (Catálogo) -->
+    <section id="catalogo" class="section-spacing" style="background: rgba(255, 105, 180, 0.03);">
+        <div class="container-lg">
+            <div class="text-center mb-6 scroll-reveal">
+                <h2 class="heading-lg mb-2">Nuestro <span class="text-pink">Trabajo</span></h2>
+                <p class="text-secondary max-w-md mx-auto">Explora nuestras áreas de negocio y descubre productos únicos.</p>
+            </div>
+            
+            <!-- Rubros Selection -->
+            <div id="rubrosContainer" class="flex flex-wrap justify-center gap-4 mb-6">
+                <!-- Se llenará dinámicamente -->
+            </div>
+
+            <!-- Categories Filter -->
+            <div id="categoriesContainer" class="flex flex-wrap justify-center gap-2 mb-8 hidden">
+                <!-- Se llenará dinámicamente -->
+            </div>
+
+            <div id="publicCatalogGrid" class="gallery-grid hidden">
+                <!-- Los productos se cargarán dinámicamente aquí desde Firebase -->
+            </div>
+        </div>
+    </section>
+
     <!-- Servicios Section -->
     <section id="servicios" class="section-spacing bg-secondary">
         <div class="container-lg">
@@ -152,32 +178,8 @@
         </div>
     </section>
 
-    <!-- Portafolio / Galería -->
-    <section id="catalogo" class="section-spacing bg-secondary">
-        <div class="container-lg">
-            <div class="text-center mb-8 scroll-reveal">
-                <h2 class="heading-lg mb-2">Nuestro <span class="text-pink">Trabajo</span></h2>
-                <p class="text-secondary max-w-md mx-auto">Explora nuestras áreas de negocio y descubre productos únicos.</p>
-            </div>
-            
-            <!-- Rubros Selection -->
-            <div id="rubrosContainer" class="flex flex-wrap justify-center gap-4 mb-8">
-                <!-- Se llenará dinámicamente -->
-            </div>
-
-            <!-- Categories Filter -->
-            <div id="categoriesContainer" class="flex flex-wrap justify-center gap-2 mb-8 hidden">
-                <!-- Se llenará dinámicamente -->
-            </div>
-
-            <div id="publicCatalogGrid" class="gallery-grid hidden">
-                <!-- Los productos se cargarán dinámicamente aquí desde Firebase -->
-            </div>
-        </div>
-    </section>
-
     <!-- Precios Referenciales -->
-    <section class="section-spacing">
+    <section class="section-spacing bg-secondary">
         <div class="container-lg">
             <div class="text-center mb-8 scroll-reveal">
                 <h2 class="heading-lg mb-2">Precios <span class="text-rose">Referenciales</span></h2>
@@ -585,23 +587,26 @@
                 const card = document.createElement('div');
                 card.className = 'glass-panel flex-col overflow-hidden p-0 relative group fade-in';
                 card.style.height = '280px';
+                card.style.display = 'flex';
+                card.style.flexDirection = 'column';
+                card.style.overflow = 'hidden';
                 
                 const validPrice = typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0;
                 const imgSrc = item.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMyMzMyMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg==';
                 
                 card.innerHTML = `
-                    <div class="h-40 w-full bg-black relative">
-                        <img src="${imgSrc}" alt="${item.name || 'Producto'}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                        <div class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md border border-white/10">
+                    <div style="height: 160px; width: 100%; background: #000; position: relative; flex-shrink: 0;">
+                        <img src="${imgSrc}" alt="${item.name || 'Producto'}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;">
+                        <div style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
                             <span class="text-green font-black">$${validPrice.toFixed(2)}</span>
                         </div>
                     </div>
-                    <div class="p-3 flex-col flex-1 justify-between">
+                    <div style="padding: 12px; display: flex; flex-direction: column; flex: 1; justify-content: space-between;">
                         <div>
-                            <h4 class="font-bold text-sm truncate">${item.name || 'Sin nombre'}</h4>
-                            <p class="text-xs text-muted truncate" style="white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${item.description || ''}</p>
+                            <h4 class="font-bold truncate" style="font-size: 14px; margin-bottom: 4px;">${item.name || 'Sin nombre'}</h4>
+                            <p class="text-muted" style="font-size: 12px; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px;">${item.description || ''}</p>
                         </div>
-                        <button class="btn btn-sm btn-secondary w-full mt-2" onclick="window.addToClientCart('${item.id}')">
+                        <button class="btn btn-sm btn-secondary" style="width: 100%; font-weight: bold; border-radius: 8px;" onclick="window.addToClientCart('${item.id}')">
                             Añadir al Carrito
                         </button>
                     </div>
