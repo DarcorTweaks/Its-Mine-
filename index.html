@@ -508,38 +508,53 @@
                 return;
             }
 
-            rubros.forEach(r => {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-secondary font-black uppercase text-sm tracking-widest hover:scale-105 transition-transform';
-                btn.style.padding = '12px 24px';
-                btn.textContent = r.name;
-                btn.onclick = () => selectRubro(r.name);
-                container.appendChild(btn);
-            });
+            if (!currentSelectedRubro) {
+                // Show all rubros
+                rubros.forEach(r => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary font-black uppercase tracking-widest hover:scale-105 transition-transform';
+                    btn.style.padding = '14px 28px';
+                    btn.style.fontSize = '16px';
+                    btn.style.boxShadow = '0 4px 15px rgba(244, 63, 94, 0.3)';
+                    btn.textContent = r.name;
+                    btn.onclick = () => selectRubro(r.name);
+                    container.appendChild(btn);
+                });
+                
+                // Hide categories and catalog
+                document.getElementById('categoriesContainer').classList.add('hidden');
+                document.getElementById('publicCatalogGrid').classList.add('hidden');
+            } else {
+                // Show Back Button and Selected Rubro Title
+                const backBtn = document.createElement('button');
+                backBtn.className = 'btn btn-ghost text-secondary hover:text-white flex items-center gap-2 mb-2';
+                backBtn.innerHTML = `<span>←</span> Volver a Categorías Principales`;
+                backBtn.onclick = () => selectRubro(null);
+                
+                const title = document.createElement('h3');
+                title.className = 'text-2xl font-black text-pink uppercase tracking-widest';
+                title.textContent = currentSelectedRubro;
+                
+                container.appendChild(backBtn);
+                container.appendChild(title);
+            }
         }
 
         function selectRubro(rubroName) {
             currentSelectedRubro = rubroName;
             currentSelectedCategory = 'Todos';
             
-            // Highlight selected rubro button
-            const container = document.getElementById('rubrosContainer');
-            Array.from(container.children).forEach(btn => {
-                if (btn.textContent === rubroName) {
-                    btn.classList.remove('btn-secondary');
-                    btn.classList.add('btn-primary');
-                } else {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-secondary');
-                }
-            });
+            // Re-render rubros container (shows back button or all rubros)
+            renderRubros();
 
-            // Show categories for this rubro
-            renderCategoryFilters();
-            
-            // Show products
-            document.getElementById('publicCatalogGrid').classList.remove('hidden');
-            renderPublicCatalog();
+            if (rubroName) {
+                // Show categories for this rubro
+                renderCategoryFilters();
+                
+                // Show products
+                document.getElementById('publicCatalogGrid').classList.remove('hidden');
+                renderPublicCatalog();
+            }
         }
 
         // Fetch Categories
