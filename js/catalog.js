@@ -98,14 +98,62 @@ export function renderRubrosAdmin() {
 }
 
 function updateRubroSelect() {
-    const select = document.getElementById('catRubroSelect');
-    if (!select) return;
-    select.innerHTML = '<option value="">Selecciona un Rubro...</option>';
-    rubros.forEach(r => {
-        const opt = document.createElement('option');
-        opt.value = r.name;
-        opt.textContent = r.name;
-        select.appendChild(opt);
+    const rubroEl = document.getElementById('catRubroSelect');
+    if (rubroEl) {
+        rubroEl.innerHTML = '<option value="">Todos los Rubros</option>';
+        rubros.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.name;
+            opt.textContent = r.name;
+            rubroEl.appendChild(opt);
+        });
+    }
+}
+
+// Helper to compress image
+function compressImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = event => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800;
+                const MAX_HEIGHT = 800;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convert to WebP for best compression/quality, fallback to jpeg
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        reject(new Error("No se pudo comprimir la imagen"));
+                        return;
+                    }
+                    resolve(blob);
+                }, 'image/webp', 0.8);
+            };
+            img.onerror = error => reject(error);
+        };
+        reader.onerror = error => reject(error);
     });
 }
 
@@ -295,9 +343,15 @@ export async function addCatalogItem() {
     statusEl.textContent = 'Subiendo imagen a Firebase...';
     
     try {
-        // Upload image to Storage using uploadBytes (more reliable for simple files)
+        // Compress image before upload
+        statusEl.textContent = 'Optimizando imagen...';
+        const compressedFile = await compressImage(file);
+        
+        statusEl.textContent = 'Subiendo imagen optimizada...';
         const storageRef = ref(storage, `catalog/${Date.now()}_${file.name}`);
-        const uploadTask = await uploadBytes(storageRef, file);
+        // Add metadata to ensure correct content type
+        const metadata = { contentType: compressedFile.type };
+        const uploadTask = await uploadBytes(storageRef, compressedFile, metadata);
         const imageUrl = await getDownloadURL(uploadTask.ref);
 
         // Save to Firestore
