@@ -322,6 +322,8 @@ export async function addCatalogItem() {
         const descEl = document.getElementById('catDesc');
         const imageEl = document.getElementById('catImage');
         const catEl = document.getElementById('catCategory');
+        const wholesalePriceEl = document.getElementById('catWholesalePrice');
+        const wholesaleQtyEl = document.getElementById('catWholesaleQty');
         const btnAdd = document.getElementById('btnAddCatalog');
         const statusEl = document.getElementById('catUploadStatus');
         
@@ -362,6 +364,8 @@ export async function addCatalogItem() {
             price: parseFloat(priceEl.value),
             description: descEl.value,
             category: catEl.value,
+            wholesalePrice: wholesalePriceEl.value ? parseFloat(wholesalePriceEl.value) : null,
+            wholesaleQty: wholesaleQtyEl.value ? parseInt(wholesaleQtyEl.value) : null,
             imageUrl: base64Image,
             createdAt: Date.now()
         });
@@ -374,6 +378,8 @@ export async function addCatalogItem() {
         descEl.value = '';
         imageEl.value = '';
         catEl.value = '';
+        if(wholesalePriceEl) wholesalePriceEl.value = '';
+        if(wholesaleQtyEl) wholesaleQtyEl.value = '';
         document.getElementById('catImagePreview').classList.add('hidden');
         
         btnAdd.disabled = false;
