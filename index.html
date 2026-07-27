@@ -331,6 +331,7 @@
         
         let clientRates = { euro: 1, binance: 1 };
         let catalog = [];
+        let webServices = [];
         let categories = [];
         let cart = [];
 
@@ -381,13 +382,13 @@
             try {
                 const q = query(collection(db, 'servicios_publico'), orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
-                categories = [];
+                webServices = [];
                 querySnapshot.forEach(doc => {
-                    categories.push({ id: doc.id, ...doc.data() });
+                    webServices.push({ id: doc.id, ...doc.data() });
                 });
                 renderServices();
             } catch (error) {
-                console.error("Error fetching categories", error);
+                console.error("Error fetching services", error);
             }
         }
 
@@ -395,12 +396,12 @@
             const grid = document.getElementById('publicServicesGrid');
             grid.innerHTML = '';
             
-            if (categories.length === 0) {
+            if (webServices.length === 0) {
                 grid.innerHTML = '<p class="text-center col-span-full text-muted">Pronto añadiremos nuestros servicios.</p>';
                 return;
             }
 
-            categories.forEach((cat, index) => {
+            webServices.forEach((cat, index) => {
                 const delay = (index * 0.1).toFixed(1);
                 const card = document.createElement('div');
                 card.className = 'service-card scroll-reveal';
@@ -430,7 +431,6 @@
         }
 
         let rubros = [];
-        let categories = []; // Subcategories
         let currentSelectedRubro = null;
         let currentSelectedCategory = 'Todos';
 
