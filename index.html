@@ -153,15 +153,25 @@
     </section>
 
     <!-- Portafolio / Galería -->
-    <section class="section-spacing bg-secondary">
+    <section id="catalogo" class="section-spacing bg-secondary">
         <div class="container-lg">
             <div class="text-center mb-8 scroll-reveal">
                 <h2 class="heading-lg mb-2">Nuestro <span class="text-pink">Trabajo</span></h2>
-                <p class="text-secondary max-w-md mx-auto">Explora algunas de nuestras creaciones y categorías más populares.</p>
+                <p class="text-secondary max-w-md mx-auto">Explora nuestras áreas de negocio y descubre productos únicos.</p>
             </div>
-            <div id="publicCatalogGrid" class="gallery-grid">
+            
+            <!-- Rubros Selection -->
+            <div id="rubrosContainer" class="flex flex-wrap justify-center gap-4 mb-8">
+                <!-- Se llenará dinámicamente -->
+            </div>
+
+            <!-- Categories Filter -->
+            <div id="categoriesContainer" class="flex flex-wrap justify-center gap-2 mb-8 hidden">
+                <!-- Se llenará dinámicamente -->
+            </div>
+
+            <div id="publicCatalogGrid" class="gallery-grid hidden">
                 <!-- Los productos se cargarán dinámicamente aquí desde Firebase -->
-                <p class="text-secondary col-span-full text-center py-8">Cargando catálogo...</p>
             </div>
         </div>
     </section>
@@ -419,6 +429,122 @@
             });
         }
 
+        let rubros = [];
+        let categories = []; // Subcategories
+        let currentSelectedRubro = null;
+        let currentSelectedCategory = 'Todos';
+
+        // Fetch Rubros
+        async function fetchRubros() {
+            try {
+                const q = query(collection(db, 'rubros_publico'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                rubros = [];
+                querySnapshot.forEach(doc => {
+                    rubros.push({ id: doc.id, ...doc.data() });
+                });
+                renderRubros();
+            } catch (error) {
+                console.error("Error fetching rubros", error);
+            }
+        }
+
+        function renderRubros() {
+            const container = document.getElementById('rubrosContainer');
+            container.innerHTML = '';
+            
+            if (rubros.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center w-full">Cargando...</p>';
+                return;
+            }
+
+            rubros.forEach(r => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-secondary font-black uppercase text-sm tracking-widest hover:scale-105 transition-transform';
+                btn.style.padding = '12px 24px';
+                btn.textContent = r.name;
+                btn.onclick = () => selectRubro(r.name);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectRubro(rubroName) {
+            currentSelectedRubro = rubroName;
+            currentSelectedCategory = 'Todos';
+            
+            // Highlight selected rubro button
+            const container = document.getElementById('rubrosContainer');
+            Array.from(container.children).forEach(btn => {
+                if (btn.textContent === rubroName) {
+                    btn.classList.remove('btn-secondary');
+                    btn.classList.add('btn-primary');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                }
+            });
+
+            // Show categories for this rubro
+            renderCategoryFilters();
+            
+            // Show products
+            document.getElementById('publicCatalogGrid').classList.remove('hidden');
+            renderPublicCatalog();
+        }
+
+        // Fetch Categories
+        async function fetchCategories() {
+            try {
+                const q = query(collection(db, 'categorias_publico'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                categories = [];
+                querySnapshot.forEach(doc => {
+                    categories.push({ id: doc.id, ...doc.data() });
+                });
+            } catch (error) {
+                console.error("Error fetching categories", error);
+            }
+        }
+
+        function renderCategoryFilters() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+            
+            if (!currentSelectedRubro) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            const catsInRubro = categories.filter(c => c.rubro === currentSelectedRubro);
+            
+            if (catsInRubro.length > 0) {
+                container.classList.remove('hidden');
+                
+                // Button "Todos"
+                const btnTodos = document.createElement('button');
+                btnTodos.className = `badge ${currentSelectedCategory === 'Todos' ? 'badge-pink' : 'bg-white/10 text-white'} px-3 py-1 font-bold cursor-pointer hover:bg-pink-500/50 transition-colors`;
+                btnTodos.textContent = 'Todos';
+                btnTodos.onclick = () => selectCategoryFilter('Todos');
+                container.appendChild(btnTodos);
+
+                catsInRubro.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.className = `badge ${currentSelectedCategory === c.name ? 'badge-pink' : 'bg-white/10 text-white'} px-3 py-1 font-bold cursor-pointer hover:bg-pink-500/50 transition-colors`;
+                    btn.textContent = c.name;
+                    btn.onclick = () => selectCategoryFilter(c.name);
+                    container.appendChild(btn);
+                });
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function selectCategoryFilter(catName) {
+            currentSelectedCategory = catName;
+            renderCategoryFilters(); // Re-render to update active styling
+            renderPublicCatalog();
+        }
+
         // Fetch Catalog
         async function fetchCatalog() {
             try {
@@ -428,10 +554,8 @@
                 querySnapshot.forEach(doc => {
                     catalog.push({ id: doc.id, ...doc.data() });
                 });
-                renderPublicCatalog();
             } catch (error) {
                 console.error("Error fetching catalog", error);
-                document.getElementById('publicCatalogGrid').innerHTML = '<p class="text-red text-center col-span-full">Error al cargar el catálogo</p>';
             }
         }
 
@@ -439,14 +563,27 @@
             const grid = document.getElementById('publicCatalogGrid');
             grid.innerHTML = '';
             
-            if (catalog.length === 0) {
-                grid.innerHTML = '<p class="text-secondary text-center col-span-full py-8">Aún no hay productos en el catálogo.</p>';
+            if (!currentSelectedRubro) return;
+
+            let filteredCatalog = catalog.filter(item => {
+                // We need to find if the item's category belongs to the current rubro
+                const itemCatObj = categories.find(c => c.name === item.category);
+                const itemRubro = itemCatObj ? itemCatObj.rubro : null;
+                return itemRubro === currentSelectedRubro;
+            });
+
+            if (currentSelectedCategory !== 'Todos') {
+                filteredCatalog = filteredCatalog.filter(item => item.category === currentSelectedCategory);
+            }
+            
+            if (filteredCatalog.length === 0) {
+                grid.innerHTML = '<p class="text-secondary text-center col-span-full py-8">No hay productos en esta sección.</p>';
                 return;
             }
 
-            catalog.forEach(item => {
+            filteredCatalog.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'glass-panel flex-col overflow-hidden p-0 relative group';
+                card.className = 'glass-panel flex-col overflow-hidden p-0 relative group fade-in';
                 card.style.height = '280px';
                 
                 card.innerHTML = `
@@ -554,9 +691,12 @@
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
-            fetchClientRates();
-            fetchCategories();
-            fetchCatalog();
+           // Initialize
+        fetchRates();
+        loadServices();
+        fetchRubros();
+        fetchCategories();
+        fetchCatalog();
             setInterval(fetchClientRates, 300000);
         });
     </script>

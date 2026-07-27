@@ -4,6 +4,7 @@ import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/fireba
 import { formatUSD, showToast, createElement } from './utils.js';
 
 let catalogItems = [];
+let rubros = [];
 let categories = [];
 let webServices = [];
 
@@ -16,6 +17,18 @@ export function startCatalogSync() {
         renderCatalogAdmin();
     }, (error) => {
         console.error("Error catalog sync:", error);
+    });
+
+    onSnapshot(collection(db, 'rubros_publico'), (snapshot) => {
+        rubros = [];
+        snapshot.forEach(doc => {
+            rubros.push({ id: doc.id, ...doc.data() });
+        });
+        renderRubrosAdmin();
+        updateRubroSelect();
+        updateCategorySelects(); // Needs rubros to optgroup
+    }, (error) => {
+        console.error("Error rubros sync:", error);
     });
 
     onSnapshot(collection(db, 'categorias_publico'), (snapshot) => {
@@ -40,18 +53,77 @@ export function startCatalogSync() {
     });
 }
 
+// --- RUBROS ---
+export async function addRubro() {
+    const nameEl = document.getElementById('rubroNameInput');
+    if (!nameEl || !nameEl.value) return showToast("Escribe el nombre del rubro");
+    
+    try {
+        await addDoc(collection(db, 'rubros_publico'), {
+            name: nameEl.value,
+            createdAt: Date.now()
+        });
+        showToast("Rubro añadido");
+        nameEl.value = '';
+    } catch (e) { showToast("Error al añadir rubro"); }
+}
+
+export async function deleteRubro(id) {
+    if (confirm("¿Seguro de borrar este rubro?")) {
+        try {
+            await deleteDoc(doc(db, 'rubros_publico', id));
+            showToast("Rubro eliminado");
+        } catch (e) { showToast("Error al eliminar"); }
+    }
+}
+
+export function renderRubrosAdmin() {
+    const list = document.getElementById('rubroList');
+    if (!list) return;
+    
+    if (rubros.length === 0) {
+        list.innerHTML = '<p class="text-sm text-muted text-center py-2">No hay rubros</p>';
+        return;
+    }
+    
+    list.innerHTML = '';
+    rubros.sort((a,b) => b.createdAt - a.createdAt).forEach(item => {
+        const row = createElement('div', 'flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5 mb-1');
+        row.appendChild(createElement('p', 'text-sm font-bold text-white uppercase', item.name));
+        const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white', 'X');
+        btnDelete.onclick = () => deleteRubro(item.id);
+        row.appendChild(btnDelete);
+        list.appendChild(row);
+    });
+}
+
+function updateRubroSelect() {
+    const select = document.getElementById('catRubroSelect');
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecciona un Rubro...</option>';
+    rubros.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.name;
+        opt.textContent = r.name;
+        select.appendChild(opt);
+    });
+}
+
+// --- CATEGORIES ---
 export async function addCategory() {
     const nameEl = document.getElementById('catNameInput');
+    const rubroEl = document.getElementById('catRubroSelect');
     const btnAdd = document.getElementById('btnAddCategory');
     
-    if (!nameEl.value) {
-        return showToast("Escribe el nombre de la categoría");
+    if (!nameEl.value || !rubroEl.value) {
+        return showToast("Selecciona el rubro y escribe el nombre de la categoría");
     }
     
     btnAdd.disabled = true;
     try {
         await addDoc(collection(db, 'categorias_publico'), {
             name: nameEl.value,
+            rubro: rubroEl.value,
             createdAt: Date.now()
         });
         showToast("Categoría añadida");
@@ -79,11 +151,20 @@ function updateCategorySelects() {
     if (!select) return;
     
     select.innerHTML = '<option value="">Selecciona Categoría...</option>';
-    categories.forEach(cat => {
-        const opt = document.createElement('option');
-        opt.value = cat.name;
-        opt.textContent = cat.name;
-        select.appendChild(opt);
+    
+    rubros.forEach(r => {
+        const catsInRubro = categories.filter(c => c.rubro === r.name);
+        if (catsInRubro.length > 0) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = r.name;
+            catsInRubro.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.name;
+                opt.textContent = cat.name;
+                optgroup.appendChild(opt);
+            });
+            select.appendChild(optgroup);
+        }
     });
 }
 
@@ -101,12 +182,14 @@ export function renderCategoriesAdmin() {
     categories.sort((a, b) => b.createdAt - a.createdAt).forEach(item => {
         const row = createElement('div', 'flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5 mb-2');
         
-        const nameP = createElement('p', 'text-sm font-bold text-white', item.name);
+        const infoDiv = createElement('div', 'flex-col');
+        infoDiv.appendChild(createElement('p', 'text-sm font-bold text-white', item.name));
+        infoDiv.appendChild(createElement('p', 'text-xxs text-pink', item.rubro || 'Sin Rubro'));
         
         const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white', 'X');
         btnDelete.onclick = () => deleteCategory(item.id);
         
-        row.appendChild(nameP);
+        row.appendChild(infoDiv);
         row.appendChild(btnDelete);
         list.appendChild(row);
     });

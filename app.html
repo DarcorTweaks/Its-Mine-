@@ -391,10 +391,26 @@
       <!-- TAB 6: CATALOG -->
       <section id="catalogPage" class="page flex-col gap-4" style="display: none;">
         
+        <!-- Manage Rubros -->
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-rose uppercase">Rubros Principales</h3>
+          <p class="text-xs text-muted mb-2">Grandes áreas de tu negocio (Ej: Impresión 3D, Bisutería).</p>
+          <div class="flex gap-2">
+            <input type="text" id="rubroNameInput" class="input-pro flex-1" placeholder="Ej: Bisutería">
+            <button id="btnAddRubro" class="btn btn-primary">+</button>
+          </div>
+          <div id="rubroList" class="flex-col gap-2 mt-2 max-h-[150px] overflow-y-auto">
+            <p class="text-sm text-muted text-center py-2">Cargando...</p>
+          </div>
+        </div>
+
         <!-- Manage Categories -->
         <div class="glass-panel flex-col gap-3">
-          <h3 class="heading-sm font-black text-rose uppercase">Categorías del Catálogo</h3>
-          <p class="text-xs text-muted mb-2">Para organizar tus productos públicamente (Ej: Anillos, Pulseras).</p>
+          <h3 class="heading-sm font-black text-rose uppercase">Subcategorías del Catálogo</h3>
+          <p class="text-xs text-muted mb-2">Pertenecen a un rubro (Ej: Anillos, Pulseras).</p>
+          <select id="catRubroSelect" class="select-pro font-bold">
+            <option value="">Selecciona un Rubro...</option>
+          </select>
           <div class="flex gap-2">
             <input type="text" id="catNameInput" class="input-pro flex-1" placeholder="Ej: Llaveros">
             <button id="btnAddCategory" class="btn btn-primary">+</button>
@@ -495,7 +511,7 @@
         generateQuoteView, closeQuoteView, filterSales,
         exportSalesCSV, exportExpensesCSV, exportInventoryCSV, addInvCategory, deleteInvCategory
     } from './js/sales.js';
-    import { startCatalogSync, addCatalogItem, deleteCatalogItem, addCategory, deleteCategory, addWebSvc, deleteWebSvc } from './js/catalog.js';
+    import { startCatalogSync, addCatalogItem, deleteCatalogItem, addCategory, deleteCategory, addWebSvc, deleteWebSvc, addRubro, deleteRubro } from './js/catalog.js';
     import { updateAdminPanel } from './js/dashboard.js';
     import { showToast, formatBS, formatUSD } from './js/utils.js';
 
@@ -511,6 +527,7 @@
     window.editInvItem = editInvItem;
     window.deleteCatalogItem = deleteCatalogItem;
     window.deleteCategory = deleteCategory;
+    window.deleteRubro = deleteRubro;
     window.deleteInvCategory = deleteInvCategory;
     window.deleteWebSvc = deleteWebSvc;
     window.fetchRates = fetchRates;
@@ -618,6 +635,7 @@
     document.getElementById('btnSaveExpense')?.addEventListener('click', addExpense);
     document.getElementById('btnSaveInv')?.addEventListener('click', addInvItem);
     document.getElementById('btnAddCatalog')?.addEventListener('click', addCatalogItem);
+    document.getElementById('btnAddRubro')?.addEventListener('click', addRubro);
     document.getElementById('btnAddCategory')?.addEventListener('click', addCategory);
     document.getElementById('btnAddInvCategory')?.addEventListener('click', addInvCategory);
     document.getElementById('btnAddWebSvc')?.addEventListener('click', addWebSvc);
