@@ -6,6 +6,7 @@ import { updateAdminPanel } from './dashboard.js';
 let salesHistory = [];
 let expensesHistory = [];
 let inventoryData = [];
+let inventoryCategories = [];
 let totalSavedUSDT = 0;
 let currentStatusFilter = 'all';
 
@@ -68,6 +69,13 @@ export function startRealtimeSync() {
         inventoryData = data;
         renderInventory();
         updateStockBadge();
+    });
+
+    listenCollection('categorias_inventario', (data) => {
+        inventoryCategories = data;
+        renderInvCategories();
+        updateInvTypeSelect();
+        renderInventory(); // Re-render to update the extra options based on new categories
     });
 
     listenDoc('config', 'ahorros', (data) => {
@@ -404,17 +412,81 @@ export async function editInvItem(id) {
     showToast("✏️ Editando...");
 }
 
+// --- INVENTORY CATEGORIES ---
+export async function addInvCategory() {
+    if (!currentUserId) return;
+    const nameInput = document.getElementById('invCatNameInput');
+    const name = nameInput?.value;
+    if (!name) return showToast("Escribe el nombre de la categoría");
+
+    const id = Date.now().toString();
+    await saveDoc('categorias_inventario', id, { id, name, timestamp: Date.now() });
+    if (nameInput) nameInput.value = '';
+    showToast("Categoría añadida al stock");
+}
+
+export async function deleteInvCategory(id) {
+    if (!currentUserId) return;
+    if (confirm("¿Borrar esta categoría de stock?")) {
+        await removeDoc('categorias_inventario', id.toString());
+        showToast("Categoría borrada");
+    }
+}
+
+export function renderInvCategories() {
+    const list = document.getElementById('invCategoryList');
+    if (!list) return;
+
+    if (inventoryCategories.length === 0) {
+        list.innerHTML = '<p class="text-sm text-muted text-center py-2">No hay categorías</p>';
+        return;
+    }
+
+    list.innerHTML = '';
+    [...inventoryCategories].sort((a,b) => b.timestamp - a.timestamp).forEach(cat => {
+        const row = createElement('div', 'flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5 mb-1');
+        row.appendChild(createElement('p', 'text-sm font-bold text-white', cat.name));
+        const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white', 'X');
+        btnDelete.onclick = () => deleteInvCategory(cat.id);
+        row.appendChild(btnDelete);
+        list.appendChild(row);
+    });
+}
+
+function updateInvTypeSelect() {
+    const select = document.getElementById('invType');
+    if (!select) return;
+    select.innerHTML = '<option value="">Seleccione Categoría...</option>';
+    inventoryCategories.forEach(cat => {
+        const opt = createElement('option', '', cat.name);
+        opt.value = cat.name;
+        select.appendChild(opt);
+    });
+}
+
 export function renderInventory() {
     const list = document.getElementById('inventoryList');
     
     const extraSelect = document.getElementById('extraInvSelect');
     if (extraSelect) {
         extraSelect.innerHTML = '<option value="">Selecciona extra de tu Stock...</option>';
-        inventoryData.filter(i => i.type === 'Bisuteria' || i.type === 'Empaque').forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = JSON.stringify({id: item.id, name: item.name, price: item.price || 0});
-            opt.textContent = `${item.name} ($${item.price || 0})`;
-            extraSelect.appendChild(opt);
+        
+        // Group inventory by category in select
+        inventoryCategories.forEach(cat => {
+            const itemsInCat = inventoryData.filter(i => i.type === cat.name);
+            if (itemsInCat.length > 0) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = cat.name;
+                
+                itemsInCat.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = JSON.stringify({id: item.id, name: item.name, price: item.price || 0});
+                    opt.textContent = `${item.name} ($${item.price || 0})`;
+                    optgroup.appendChild(opt);
+                });
+                
+                extraSelect.appendChild(optgroup);
+            }
         });
     }
 

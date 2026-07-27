@@ -353,21 +353,31 @@
       <!-- TAB 5: INVENTARIO -->
       <section id="inventoryPage" class="page flex-col gap-4" style="display: none;">
         
+        <!-- Categorías de Stock -->
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-rose uppercase">Categorías de Material</h3>
+          <p class="text-xs text-muted mb-2">Crea categorías como "Miyuki", "Hilos", "PLA" para organizar tus materiales.</p>
+          <div class="flex gap-2">
+            <input type="text" id="invCatNameInput" class="input-pro flex-1" placeholder="Ej: Miyuki">
+            <button id="btnAddInvCategory" class="btn btn-primary">+</button>
+          </div>
+          <div id="invCategoryList" class="flex-col gap-2 mt-2 max-h-[150px] overflow-y-auto">
+            <p class="text-sm text-muted text-center py-2">Cargando...</p>
+          </div>
+        </div>
+
         <div class="glass-panel flex-col gap-3">
           <h3 class="text-xs font-black text-rose uppercase tracking-wide flex-center gap-2" style="justify-content: flex-start;">
             <span class="status-dot" style="background: var(--accent-rose);"></span> Agregar Material
           </h3>
-          <input type="text" id="invName" class="input-pro" placeholder="Nombre (Ej: PLA Rosa)">
+          <input type="text" id="invName" class="input-pro" placeholder="Nombre (Ej: Rojo 11/0)">
           <div class="grid-3 gap-2">
             <input type="number" id="invQty" class="input-pro font-bold" placeholder="Cant.">
             <input type="number" id="invMinQty" class="input-pro font-bold" placeholder="Min.">
             <input type="number" id="invPrice" class="input-pro font-bold" placeholder="Precio $">
           </div>
           <select id="invType" class="select-pro font-bold">
-            <option value="PLA">Rollo Filamento</option>
-            <option value="Bisuteria">Bisutería / Extra</option>
-            <option value="Empaque">Bolsa / Caja</option>
-            <option value="Otro">Otro</option>
+            <option value="">Seleccione Categoría...</option>
           </select>
           <button id="btnSaveInv" class="btn btn-danger font-black uppercase mt-2">+ Guardar</button>
         </div>
@@ -379,23 +389,17 @@
       </section>
 
       <!-- TAB 6: CATALOG -->
-      <section id="catalogPage" class="page flex-col gap-4">
+      <section id="catalogPage" class="page flex-col gap-4" style="display: none;">
         
         <!-- Manage Categories -->
         <div class="glass-panel flex-col gap-3">
-          <h3 class="heading-sm font-black text-rose uppercase">Categorías y Servicios</h3>
-          <p class="text-xs text-muted mb-2">Las categorías que crees aquí aparecerán como "Servicios" en la página principal.</p>
-          <div class="grid-2 gap-2">
-            <input type="text" id="catNameInput" class="input-pro" placeholder="Nombre (Ej: Cadenas y collares)">
-            <input type="text" id="catEmojiInput" class="input-pro" placeholder="Emoji (Ej: 📿)">
+          <h3 class="heading-sm font-black text-rose uppercase">Categorías del Catálogo</h3>
+          <p class="text-xs text-muted mb-2">Para organizar tus productos públicamente (Ej: Anillos, Pulseras).</p>
+          <div class="flex gap-2">
+            <input type="text" id="catNameInput" class="input-pro flex-1" placeholder="Ej: Llaveros">
+            <button id="btnAddCategory" class="btn btn-primary">+</button>
           </div>
-          <div class="grid-2 gap-2">
-            <input type="number" id="catBasePriceInput" class="input-pro" placeholder="Precio Base ($)">
-            <input type="text" id="catDescInput" class="input-pro" placeholder="Descripción breve">
-          </div>
-          <button id="btnAddCategory" class="btn btn-primary mt-1">Añadir Categoría</button>
-          
-          <div id="categoryList" class="flex-col gap-2 mt-2 max-h-[200px] overflow-y-auto">
+          <div id="categoryList" class="flex-col gap-2 mt-2 max-h-[150px] overflow-y-auto">
             <p class="text-sm text-muted text-center py-2">Cargando...</p>
           </div>
         </div>
@@ -428,6 +432,27 @@
         </div>
       </section>
 
+      <!-- TAB 7: WEB (NEW) -->
+      <section id="webPage" class="page flex-col gap-4" style="display: none;">
+        <div class="glass-panel flex-col gap-3">
+          <h3 class="heading-sm font-black text-rose uppercase">Servicios Página Principal</h3>
+          <p class="text-xs text-muted mb-2">Personaliza las tarjetas de servicios (con Emoji) que el cliente ve en el inicio.</p>
+          <div class="grid-2 gap-2">
+            <input type="text" id="webSvcName" class="input-pro" placeholder="Título (Ej: Cadenas)">
+            <input type="text" id="webSvcEmoji" class="input-pro" placeholder="Emoji (Ej: 📿)">
+          </div>
+          <div class="grid-2 gap-2">
+            <input type="number" id="webSvcPrice" class="input-pro" placeholder="Desde ($)">
+            <input type="text" id="webSvcDesc" class="input-pro" placeholder="Descripción">
+          </div>
+          <button id="btnAddWebSvc" class="btn btn-primary mt-1">Añadir Servicio Público</button>
+          
+          <div id="webSvcList" class="flex-col gap-2 mt-2 max-h-[200px] overflow-y-auto">
+            <p class="text-sm text-muted text-center py-2">Cargando...</p>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- BOTTOM NAV -->
@@ -450,6 +475,9 @@
       <button id="navCatalog" class="nav-btn">
         <span>Catálogo</span>
       </button>
+      <button id="navWeb" class="nav-btn">
+        <span>Web</span>
+      </button>
     </nav>
   </div>
 
@@ -465,9 +493,9 @@
         addExpense, deleteExpense, addInvItem, updateInvQty, deleteInvItem, editInvItem,
         addSavings, clearSavings, clearAllData, generateWHTicket, 
         generateQuoteView, closeQuoteView, filterSales,
-        exportSalesCSV, exportExpensesCSV, exportInventoryCSV
+        exportSalesCSV, exportExpensesCSV, exportInventoryCSV, addInvCategory, deleteInvCategory
     } from './js/sales.js';
-    import { startCatalogSync, addCatalogItem, deleteCatalogItem, addCategory, deleteCategory } from './js/catalog.js';
+    import { startCatalogSync, addCatalogItem, deleteCatalogItem, addCategory, deleteCategory, addWebSvc, deleteWebSvc } from './js/catalog.js';
     import { updateAdminPanel } from './js/dashboard.js';
     import { showToast, formatBS, formatUSD } from './js/utils.js';
 
@@ -483,9 +511,11 @@
     window.editInvItem = editInvItem;
     window.deleteCatalogItem = deleteCatalogItem;
     window.deleteCategory = deleteCategory;
+    window.deleteInvCategory = deleteInvCategory;
+    window.deleteWebSvc = deleteWebSvc;
     window.fetchRates = fetchRates;
 
-    const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory', 'catalog'];
+    const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory', 'catalog', 'web'];
 
     window.showPage = function(pageId) {
         pages.forEach(p => {
@@ -589,6 +619,8 @@
     document.getElementById('btnSaveInv')?.addEventListener('click', addInvItem);
     document.getElementById('btnAddCatalog')?.addEventListener('click', addCatalogItem);
     document.getElementById('btnAddCategory')?.addEventListener('click', addCategory);
+    document.getElementById('btnAddInvCategory')?.addEventListener('click', addInvCategory);
+    document.getElementById('btnAddWebSvc')?.addEventListener('click', addWebSvc);
     document.getElementById('btnAddExtraItem')?.addEventListener('click', addExtraToCalc);
     
     document.getElementById('btnSaveUSDT')?.addEventListener('click', addSavings);

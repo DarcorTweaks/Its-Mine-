@@ -5,6 +5,7 @@ import { formatUSD, showToast, createElement } from './utils.js';
 
 let catalogItems = [];
 let categories = [];
+let webServices = [];
 
 export function startCatalogSync() {
     onSnapshot(collection(db, 'catalogo_publico'), (snapshot) => {
@@ -27,33 +28,34 @@ export function startCatalogSync() {
     }, (error) => {
         console.error("Error categories sync:", error);
     });
+
+    onSnapshot(collection(db, 'servicios_publico'), (snapshot) => {
+        webServices = [];
+        snapshot.forEach(doc => {
+            webServices.push({ id: doc.id, ...doc.data() });
+        });
+        renderWebSvcAdmin();
+    }, (error) => {
+        console.error("Error web services sync:", error);
+    });
 }
 
 export async function addCategory() {
     const nameEl = document.getElementById('catNameInput');
-    const emojiEl = document.getElementById('catEmojiInput');
-    const priceEl = document.getElementById('catBasePriceInput');
-    const descEl = document.getElementById('catDescInput');
     const btnAdd = document.getElementById('btnAddCategory');
     
-    if (!nameEl.value || !emojiEl.value || !priceEl.value || !descEl.value) {
-        return showToast("Completa todos los campos de la categoría");
+    if (!nameEl.value) {
+        return showToast("Escribe el nombre de la categoría");
     }
     
     btnAdd.disabled = true;
     try {
         await addDoc(collection(db, 'categorias_publico'), {
             name: nameEl.value,
-            emoji: emojiEl.value,
-            basePrice: parseFloat(priceEl.value),
-            description: descEl.value,
             createdAt: Date.now()
         });
         showToast("Categoría añadida");
         nameEl.value = '';
-        emojiEl.value = '';
-        priceEl.value = '';
-        descEl.value = '';
     } catch (e) {
         showToast("Error al añadir categoría");
     } finally {
@@ -99,6 +101,76 @@ export function renderCategoriesAdmin() {
     categories.sort((a, b) => b.createdAt - a.createdAt).forEach(item => {
         const row = createElement('div', 'flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5 mb-2');
         
+        const nameP = createElement('p', 'text-sm font-bold text-white', item.name);
+        
+        const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white', 'X');
+        btnDelete.onclick = () => deleteCategory(item.id);
+        
+        row.appendChild(nameP);
+        row.appendChild(btnDelete);
+        list.appendChild(row);
+    });
+}
+
+// --- WEB SERVICES ---
+
+export async function addWebSvc() {
+    const nameEl = document.getElementById('webSvcName');
+    const emojiEl = document.getElementById('webSvcEmoji');
+    const priceEl = document.getElementById('webSvcPrice');
+    const descEl = document.getElementById('webSvcDesc');
+    const btnAdd = document.getElementById('btnAddWebSvc');
+    
+    if (!nameEl.value || !emojiEl.value || !priceEl.value || !descEl.value) {
+        return showToast("Completa todos los campos");
+    }
+    
+    btnAdd.disabled = true;
+    try {
+        await addDoc(collection(db, 'servicios_publico'), {
+            name: nameEl.value,
+            emoji: emojiEl.value,
+            basePrice: parseFloat(priceEl.value),
+            description: descEl.value,
+            createdAt: Date.now()
+        });
+        showToast("Servicio añadido a la web");
+        nameEl.value = '';
+        emojiEl.value = '';
+        priceEl.value = '';
+        descEl.value = '';
+    } catch (e) {
+        showToast("Error al añadir servicio");
+    } finally {
+        btnAdd.disabled = false;
+    }
+}
+
+export async function deleteWebSvc(id) {
+    if (confirm("¿Seguro de borrar este servicio de la web?")) {
+        try {
+            await deleteDoc(doc(db, 'servicios_publico', id));
+            showToast("Servicio eliminado");
+        } catch (e) {
+            showToast("Error al eliminar");
+        }
+    }
+}
+
+export function renderWebSvcAdmin() {
+    const list = document.getElementById('webSvcList');
+    if (!list) return;
+
+    if (webServices.length === 0) {
+        list.innerHTML = '<p class="text-sm text-muted text-center py-4">No hay servicios web</p>';
+        return;
+    }
+
+    list.innerHTML = '';
+    
+    webServices.sort((a, b) => b.createdAt - a.createdAt).forEach(item => {
+        const row = createElement('div', 'flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5 mb-2');
+        
         const infoDiv = createElement('div', 'flex-col');
         const nameP = createElement('p', 'text-sm font-bold text-white', `${item.emoji} ${item.name}`);
         const detailsP = createElement('p', 'text-xxs text-muted', `Desde $${item.basePrice.toFixed(2)} - ${item.description}`);
@@ -107,7 +179,7 @@ export function renderCategoriesAdmin() {
         infoDiv.appendChild(detailsP);
         
         const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white', 'X');
-        btnDelete.onclick = () => deleteCategory(item.id);
+        btnDelete.onclick = () => deleteWebSvc(item.id);
         
         row.appendChild(infoDiv);
         row.appendChild(btnDelete);

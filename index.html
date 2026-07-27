@@ -369,7 +369,7 @@
         // Fetch Categories
         async function fetchCategories() {
             try {
-                const q = query(collection(db, 'categorias_publico'), orderBy('createdAt', 'desc'));
+                const q = query(collection(db, 'servicios_publico'), orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
                 categories = [];
                 querySnapshot.forEach(doc => {
