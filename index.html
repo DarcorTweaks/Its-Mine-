@@ -333,7 +333,7 @@
                         <span class="text-white font-bold" style="font-size: 14px;">Cantidad</span>
                         <div style="display: flex; align-items: center; background: #000; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); overflow: hidden;">
                             <button onclick="window.updateModalQty(-1)" style="width: 40px; height: 40px; background: transparent; color: white; border: none; font-size: 20px; cursor: pointer; font-weight: bold;">-</button>
-                            <input type="number" id="modalQty" value="1" min="1" readonly style="width: 50px; height: 40px; background: transparent; color: white; border: none; text-align: center; font-weight: bold; font-size: 16px; outline: none; -webkit-appearance: none;">
+                            <input type="number" id="modalQty" value="1" min="1" onchange="window.setModalQty(this.value)" style="width: 50px; height: 40px; background: transparent; color: white; border: none; text-align: center; font-weight: bold; font-size: 16px; outline: none; -webkit-appearance: none;">
                             <button onclick="window.updateModalQty(1)" style="width: 40px; height: 40px; background: transparent; color: white; border: none; font-size: 20px; cursor: pointer; font-weight: bold;">+</button>
                         </div>
                     </div>
@@ -710,6 +710,13 @@
         window.updateModalQty = function(change) {
             let newQty = currentModalQty + change;
             if (newQty < 1) newQty = 1;
+            currentModalQty = newQty;
+            document.getElementById('modalQty').value = currentModalQty;
+        };
+
+        window.setModalQty = function(val) {
+            let newQty = parseInt(val);
+            if (isNaN(newQty) || newQty < 1) newQty = 1;
             currentModalQty = newQty;
             document.getElementById('modalQty').value = currentModalQty;
         };
