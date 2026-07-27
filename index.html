@@ -321,7 +321,7 @@
     </button>
 
     <!-- Cart Overlay -->
-    <div id="cartOverlay" class="quote-overlay hidden z-[100]" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);">
+    <div id="cartOverlay" class="quote-overlay z-[100]" style="display: none; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);">
         <div class="quote-card glass-panel flex-col gap-4 max-w-sm w-full m-4">
             <div class="flex-between border-b border-glass-border pb-2">
                 <h3 class="heading-sm font-black text-pink">🛒 Tu Carrito</h3>
@@ -506,13 +506,11 @@
 
         // Modal triggers
         document.getElementById('floatingCartBtn').addEventListener('click', () => {
-            document.getElementById('cartOverlay').classList.remove('hidden');
-            document.getElementById('cartOverlay').classList.add('flex');
+            document.getElementById('cartOverlay').style.display = 'flex';
         });
         
         document.getElementById('btnCloseCart').addEventListener('click', () => {
-            document.getElementById('cartOverlay').classList.add('hidden');
-            document.getElementById('cartOverlay').classList.remove('flex');
+            document.getElementById('cartOverlay').style.display = 'none';
         });
 
         // Checkout logic

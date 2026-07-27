@@ -585,14 +585,15 @@
     
     onAuthReady((user) => {
         if (user) {
-            loginOverlay.style.display = 'none';
+            document.getElementById('loginOverlay').style.display = 'none';
             appContainer.style.display = 'block';
             cloudStatus.style.background = 'green';
             cloudStatus.title = "Conectado";
+            fetchRates();
             startRealtimeSync();
             startCatalogSync();
         } else {
-            loginOverlay.style.display = 'flex';
+            document.getElementById('loginOverlay').style.display = 'flex';
             appContainer.style.display = 'none';
             cloudStatus.style.background = 'red';
             cloudStatus.title = "Desconectado";
