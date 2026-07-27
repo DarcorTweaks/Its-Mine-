@@ -376,8 +376,8 @@
             }
         }
 
-        // Fetch Categories
-        async function fetchCategories() {
+        // Fetch Services (Web Tab)
+        async function fetchServices() {
             try {
                 const q = query(collection(db, 'servicios_publico'), orderBy('createdAt', 'desc'));
                 const querySnapshot = await getDocs(q);
@@ -691,12 +691,11 @@
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
-           // Initialize
-        fetchRates();
-        loadServices();
-        fetchRubros();
-        fetchCategories();
-        fetchCatalog();
+            fetchClientRates();
+            fetchServices();
+            fetchRubros();
+            fetchCategories();
+            fetchCatalog();
             setInterval(fetchClientRates, 300000);
         });
     </script>
