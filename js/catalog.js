@@ -141,15 +141,9 @@ function compressImage(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                
-                // Convert to JPEG for best compression/quality/compatibility
-                canvas.toBlob((blob) => {
-                    if (!blob) {
-                        reject(new Error("No se pudo comprimir la imagen"));
-                        return;
-                    }
-                    resolve(blob);
-                }, 'image/jpeg', 0.85);
+                // Convert to Base64 JPEG to save directly in Firestore (bypassing Storage issues)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                resolve(dataUrl);
             };
             img.onerror = error => reject(error);
         };
@@ -214,6 +208,8 @@ function updateCategorySelects() {
             select.appendChild(optgroup);
         }
     });
+    
+    renderCategoriesAdmin();
 }
 
 export function renderCategoriesAdmin() {
@@ -343,24 +339,19 @@ export async function addCatalogItem() {
     statusEl.textContent = 'Subiendo imagen a Firebase...';
     
     try {
-        // Compress image before upload
-        statusEl.textContent = 'Optimizando imagen...';
-        const compressedFile = await compressImage(file);
+        // Compress image before upload (now returns Base64 string)
+        statusEl.textContent = 'Procesando imagen (Método alternativo)...';
+        const base64Image = await compressImage(file);
         
-        statusEl.textContent = 'Subiendo imagen optimizada...';
-        const storageRef = ref(storage, `catalog/${Date.now()}_${file.name}`);
-        // Add metadata to ensure correct content type
-        const metadata = { contentType: compressedFile.type };
-        const uploadTask = await uploadBytes(storageRef, compressedFile, metadata);
-        const imageUrl = await getDownloadURL(uploadTask.ref);
-
-        // Save to Firestore
+        statusEl.textContent = 'Guardando en base de datos...';
+        
+        // Save to Firestore directly
         await addDoc(collection(db, 'catalogo_publico'), {
             name: nameEl.value,
             price: parseFloat(priceEl.value),
             description: descEl.value,
             category: catEl.value,
-            imageUrl: imageUrl,
+            imageUrl: base64Image,
             createdAt: Date.now()
         });
 
