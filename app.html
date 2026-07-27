@@ -436,7 +436,7 @@
             <img id="catImagePreview" src="" alt="Vista previa" class="w-full h-32 object-cover rounded-md mt-2 hidden border border-white/10">
             <p id="catUploadStatus" class="text-xs text-yellow mt-1 hidden">Subiendo imagen...</p>
           </div>
-          <button id="btnAddCatalog" class="btn btn-primary mt-2">Añadir Producto</button>
+          <button id="btnAddCatalog" class="btn btn-primary mt-2" onclick="window.addCatalogItem()">Añadir Producto</button>
         </div>
 
         <div class="glass-panel flex-col gap-3">
@@ -532,6 +532,7 @@
     window.deleteInvCategory = deleteInvCategory;
     window.deleteWebSvc = deleteWebSvc;
     window.fetchRates = fetchRates;
+    window.addCatalogItem = addCatalogItem;
 
     const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory', 'catalog', 'web'];
 

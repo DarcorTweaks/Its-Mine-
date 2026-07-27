@@ -316,33 +316,44 @@ export function renderWebSvcAdmin() {
 
 
 export async function addCatalogItem() {
-    const nameEl = document.getElementById('catName');
-    const priceEl = document.getElementById('catPrice');
-    const descEl = document.getElementById('catDesc');
-    const imageEl = document.getElementById('catImage');
-    const catEl = document.getElementById('catCategory');
-    const btnAdd = document.getElementById('btnAddCatalog');
-    const statusEl = document.getElementById('catUploadStatus');
-    
-    if (!nameEl.value || !priceEl.value || !descEl.value || !catEl.value) {
-        return showToast("Completa los datos y selecciona una categoría");
-    }
-
-    if (!imageEl.files || imageEl.files.length === 0) {
-        return showToast("Debes seleccionar una imagen");
-    }
-
-    const file = imageEl.files[0];
-    
-    btnAdd.disabled = true;
-    statusEl.style.display = 'block';
-    statusEl.textContent = 'Subiendo imagen a Firebase...';
-    
     try {
-        // Compress image before upload (now returns Base64 string)
-        statusEl.textContent = 'Procesando imagen (Método alternativo)...';
-        const base64Image = await compressImage(file);
+        const nameEl = document.getElementById('catName');
+        const priceEl = document.getElementById('catPrice');
+        const descEl = document.getElementById('catDesc');
+        const imageEl = document.getElementById('catImage');
+        const catEl = document.getElementById('catCategory');
+        const btnAdd = document.getElementById('btnAddCatalog');
+        const statusEl = document.getElementById('catUploadStatus');
         
+        if (!nameEl || !priceEl || !descEl || !imageEl || !catEl || !btnAdd || !statusEl) {
+            alert("Error interno: No se encontraron los campos del formulario.");
+            return;
+        }
+
+        if (!nameEl.value || !priceEl.value || !descEl.value || !catEl.value) {
+            return showToast("Completa los datos y selecciona una categoría");
+        }
+
+        if (!imageEl.files || imageEl.files.length === 0) {
+            return showToast("Debes seleccionar una imagen");
+        }
+
+        const file = imageEl.files[0];
+        
+        btnAdd.disabled = true;
+        statusEl.style.display = 'block';
+        statusEl.textContent = 'Procesando imagen...';
+        
+        let base64Image = '';
+        try {
+            base64Image = await compressImage(file);
+        } catch (imgError) {
+            alert("Error al procesar la imagen: " + imgError.message);
+            btnAdd.disabled = false;
+            statusEl.style.display = 'none';
+            return;
+        }
+            
         statusEl.textContent = 'Guardando en base de datos...';
         
         // Save to Firestore directly
@@ -363,13 +374,18 @@ export async function addCatalogItem() {
         descEl.value = '';
         imageEl.value = '';
         catEl.value = '';
+        document.getElementById('catImagePreview').classList.add('hidden');
         
-    } catch (error) {
-        console.error("Error adding catalog item:", error);
-        alert("ERROR SUBIENDO FOTO:\n" + error.message + "\n\n¿Activaste Storage en Firebase y pegaste las reglas correctamente?");
-    } finally {
         btnAdd.disabled = false;
         statusEl.style.display = 'none';
+
+    } catch (error) {
+        console.error("Error FATAL adding catalog item:", error);
+        alert("ERROR FATAL GUARDANDO PRODUCTO:\n" + error.message);
+        const btnAdd = document.getElementById('btnAddCatalog');
+        const statusEl = document.getElementById('catUploadStatus');
+        if (btnAdd) btnAdd.disabled = false;
+        if (statusEl) statusEl.style.display = 'none';
     }
 }
 
