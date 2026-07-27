@@ -351,38 +351,6 @@
 
       </section>
 
-      <!-- TAB 6: CATÁLOGO -->
-      <section id="catalogoPage" class="page flex-col gap-4" style="display: none;">
-
-        <div class="glass-panel flex-col gap-3">
-          <h3 class="heading-sm font-black text-rose uppercase flex-center gap-2" style="justify-content: flex-start;">
-            <span class="status-dot" style="background: var(--accent-rose);"></span> Subir Foto al Catálogo
-          </h3>
-          <p class="text-xxs text-muted">Esta foto se verá públicamente en tu página web (index.html), en la sección "Nuestro Trabajo". Se comprime automáticamente antes de guardarse.</p>
-          <input type="text" id="catName" class="input-pro" placeholder="Nombre de la pieza (Ej: Llavero Corazón)">
-          <div class="grid-2 gap-3">
-            <input type="number" id="catPrice" class="input-pro font-bold" placeholder="Precio $ (opcional)">
-            <select id="catCategory" class="select-pro font-bold text-sm">
-              <option value="accesorio">Accesorio</option>
-              <option value="hogar">Hogar</option>
-              <option value="coleccionable">Coleccionable</option>
-              <option value="repuesto">Repuesto</option>
-              <option value="gamer">Setup Gamer</option>
-              <option value="empresarial">Empresarial</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-          <input type="file" id="catPhoto" accept="image/*" class="input-pro">
-          <button id="btnSaveCatalog" class="btn btn-primary font-black uppercase mt-2">+ Subir al Catálogo</button>
-        </div>
-
-        <div class="glass-panel flex-col gap-2">
-          <h3 class="text-xs font-black text-pink uppercase tracking-wide">Fotos Publicadas</h3>
-          <div id="catalogAdminList" class="flex-col gap-2" style="max-height: 500px; overflow-y: auto;"></div>
-        </div>
-
-      </section>
-
     </main>
 
     <!-- BOTTOM NAV -->
@@ -402,9 +370,6 @@
       <button id="navInventory" class="nav-btn">
         <span>Stock</span>
       </button>
-      <button id="navCatalogo" class="nav-btn">
-        <span>Catálogo</span>
-      </button>
     </nav>
   </div>
 
@@ -420,8 +385,7 @@
         addExpense, deleteExpense, addInvItem, updateInvQty, deleteInvItem, editInvItem,
         addSavings, clearSavings, clearAllData, generateWHTicket, 
         generateQuoteView, closeQuoteView, filterSales,
-        exportSalesCSV, exportExpensesCSV, exportInventoryCSV,
-        addCatalogItem, removeCatalogItem
+        exportSalesCSV, exportExpensesCSV, exportInventoryCSV
     } from './js/sales.js';
     import { updateAdminPanel } from './js/dashboard.js';
     import { showToast, formatBS, formatUSD } from './js/utils.js';
@@ -436,9 +400,8 @@
     window.updateInvQty = updateInvQty;
     window.deleteInvItem = deleteInvItem;
     window.editInvItem = editInvItem;
-    window.removeCatalogItem = removeCatalogItem;
 
-    const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory', 'catalogo'];
+    const pages = ['calc', 'admin', 'sales', 'expenses', 'inventory'];
 
     window.showPage = function(pageId) {
         pages.forEach(p => {
@@ -541,7 +504,6 @@
 
     document.getElementById('btnSaveExpense')?.addEventListener('click', addExpense);
     document.getElementById('btnSaveInv')?.addEventListener('click', addInvItem);
-    document.getElementById('btnSaveCatalog')?.addEventListener('click', addCatalogItem);
     
     document.getElementById('btnSaveUSDT')?.addEventListener('click', addSavings);
     document.getElementById('btnClearUSDT')?.addEventListener('click', clearSavings);
@@ -556,40 +518,17 @@
     const appContainer = document.getElementById('appContainer');
     const cloudStatus = document.getElementById('cloudStatus');
 
-document.getElementById('btnLogin')?.addEventListener('click', async () => {
+    document.getElementById('btnLogin')?.addEventListener('click', async () => {
         const email = document.getElementById('loginEmail').value;
         const pass = document.getElementById('loginPassword').value;
         const err = document.getElementById('loginError');
-        const btn = document.getElementById('btnLogin');
-
         if (!email || !pass) { err.textContent = "Ingresa correo y contraseña"; return; }
         
         try {
-            btn.textContent = "Conectando...";
-            btn.disabled = true;
-            
             await loginWithEmail(email, pass);
-            
             err.textContent = "";
-            btn.textContent = "Iniciar Sesión";
-            btn.disabled = false;
         } catch(e) {
-            btn.textContent = "Iniciar Sesión";
-            btn.disabled = false;
-            
-            // Imprime el error real en la consola para depurar
-            console.error("Error exacto de Firebase:", e);
-            
-            // Filtramos y mostramos los errores exactos en pantalla
-            if (e.code === 'auth/unauthorized-domain') {
-                err.textContent = "Bloqueado: Dominio no autorizado en Firebase. Añade tu URL en la consola.";
-            } else if (e.code === 'auth/network-request-failed') {
-                err.textContent = "Falla de red: ¿Estás abriendo el archivo localmente? Usa Live Server.";
-            } else if (e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
-                err.textContent = "Credenciales inválidas. Revisa correo/contraseña.";
-            } else {
-                err.textContent = "Error: " + (e.code || e.message);
-            }
+            err.textContent = "Error de credenciales";
         }
     });
 

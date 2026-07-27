@@ -200,9 +200,8 @@
                 <p class="text-secondary max-w-md mx-auto">Explora algunas de nuestras creaciones y categorías más populares.</p>
             </div>
             
-            <div class="gallery-grid" id="galleryGrid">
-                <!-- Estas tarjetas de muestra se reemplazan automáticamente por las fotos reales
-                     que subas desde el panel admin (app.html > pestaña Catálogo). -->
+            <div class="gallery-grid">
+                <!-- CSS Art Cards representing portfolio items -->
                 <div class="gallery-item scroll-reveal" style="background: linear-gradient(135deg, #4c0519, #be123c);">
                     <div class="gallery-item-emoji">❤️</div>
                     <div class="gallery-overlay">
@@ -266,21 +265,6 @@
                         <h4 class="font-bold">Porta Auriculares Minimalista</h4>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Banner Instagram -->
-    <section class="section-spacing pt-0">
-        <div class="container-lg">
-            <div class="price-card flex-col flex-center gap-3 scroll-reveal text-center">
-                <span style="font-size: 2.5rem;">📸</span>
-                <h3 class="heading-sm">Síguenos en <span class="text-pink">Instagram</span></h3>
-                <p class="text-secondary max-w-md mx-auto">Ahí subimos fotos y videos de cada pieza en proceso, antes de que lleguen aquí.</p>
-                <a href="https://www.instagram.com/itsminevzla?igsh=dTJzNDNyZXp1Yzhx" target="_blank" class="btn btn-lg btn-primary cta-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                    Ver @itsminevzla
-                </a>
             </div>
         </div>
     </section>
@@ -446,48 +430,6 @@
             // Update rates every 5 minutes
             setInterval(fetchRates, 300000);
         });
-    </script>
-
-    <!-- Catálogo dinámico: se conecta a las fotos que subes desde app.html -->
-    <script type="module">
-        import { listenPublicCatalog } from './js/firebase.js';
-        import { sanitize } from './js/utils.js';
-
-        const CATEGORY_LABELS = {
-            accesorio: { label: 'Accesorio', badge: 'badge-pink' },
-            hogar: { label: 'Hogar', badge: 'badge-green' },
-            coleccionable: { label: 'Coleccionable', badge: 'badge-pink' },
-            repuesto: { label: 'Repuesto', badge: 'badge-yellow' },
-            gamer: { label: 'Setup Gamer', badge: 'badge-blue' },
-            empresarial: { label: 'Empresarial', badge: 'badge-yellow' },
-            otro: { label: 'Otro', badge: 'badge-red' },
-        };
-
-        function renderRealCatalog(items) {
-            const grid = document.getElementById('galleryGrid');
-            if (!grid || items.length === 0) return; // si no hay fotos aún, se mantienen las tarjetas de muestra
-
-            grid.innerHTML = '';
-            items.forEach(item => {
-                const cat = CATEGORY_LABELS[item.category] || CATEGORY_LABELS.otro;
-                const priceHtml = item.price ? `<div class="gallery-item-price">Desde $${Number(item.price).toFixed(2)}</div>` : '';
-                const safeName = sanitize(item.name);
-
-                const div = document.createElement('div');
-                div.className = 'gallery-item scroll-reveal visible';
-                div.innerHTML = `
-                    <img class="gallery-item-photo" src="${item.imageBase64}" alt="${safeName}" loading="lazy">
-                    <div class="gallery-overlay">
-                        <span class="badge ${cat.badge} mb-2">${cat.label}</span>
-                        <h4 class="font-bold">${safeName}</h4>
-                        ${priceHtml}
-                    </div>
-                `;
-                grid.appendChild(div);
-            });
-        }
-
-        listenPublicCatalog(renderRealCatalog);
     </script>
 </body>
 </html>

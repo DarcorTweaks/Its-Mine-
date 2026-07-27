@@ -22,9 +22,6 @@ const db = getFirestore(app);
 const canvasAppId = typeof __app_id !== 'undefined' ? __app_id : 'its-mine-printer-3d';
 let currentUserId = null;
 
-// Nombre de la colección pública del catálogo (NO va bajo la ruta privada del usuario)
-export const CATALOG_COLLECTION = 'catalogo_publico';
-
 export { db, auth, currentUserId };
 
 export function getColPath(colName) {
@@ -94,26 +91,4 @@ export function listenDoc(colName, docId, callback) {
             callback(null);
         }
     }, e => console.error(e));
-}
-
-// --- CATÁLOGO PÚBLICO (visible en index.html sin necesidad de login) ---
-// La foto se guarda comprimida como texto (base64) dentro del mismo documento,
-// así no necesitamos Firebase Storage ni el plan de pago.
-
-export async function saveCatalogItem(itemId, data) {
-    await setDoc(doc(db, CATALOG_COLLECTION, itemId), data, { merge: true });
-}
-
-export async function deleteCatalogItem(itemId) {
-    await deleteDoc(doc(db, CATALOG_COLLECTION, itemId));
-}
-
-// No requiere login: cualquier visitante (o el propio admin) puede escuchar el catálogo público
-export function listenPublicCatalog(callback) {
-    return onSnapshot(collection(db, CATALOG_COLLECTION), (snapshot) => {
-        const data = [];
-        snapshot.forEach(d => data.push(d.data()));
-        data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        callback(data);
-    }, e => console.error("Error leyendo catálogo:", e));
 }

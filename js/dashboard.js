@@ -1,13 +1,9 @@
-import { getSalesHistory, getExpensesHistory, getTotalSavedUSDT } from './sales.js';
 import { formatUSD } from './utils.js';
 
 let salesChart = null;
 let expensesChart = null;
 
-export function updateAdminPanel() {
-    const salesHistory = getSalesHistory();
-    const expensesHistory = getExpensesHistory();
-    const totalSavedUSDT = getTotalSavedUSDT();
+export function updateAdminPanel(salesHistory, expensesHistory, totalSavedUSDT) {
 
     let total = 0, profit = 0, matAccumulated = 0, machineAccumulated = 0, delivAccumulated = 0;
     salesHistory.forEach(s => {
