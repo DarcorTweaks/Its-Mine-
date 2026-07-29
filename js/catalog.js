@@ -5,8 +5,6 @@ import { formatUSD, showToast, createElement } from './utils.js';
 
 let catalogItems = [];
 let rubros = [];
-let catalogItems = [];
-let rubros = [];
 let categories = [];
 let webServices = [];
 let editingCatalogId = null;
