@@ -443,7 +443,10 @@
             </div>
             <p id="catUploadStatus" class="text-xs text-yellow mt-1 hidden">Subiendo imagen...</p>
           </div>
-          <button id="btnAddCatalog" class="btn btn-primary mt-2" onclick="window.addCatalogItem()">Añadir Producto</button>
+          <div class="flex gap-2 mt-2">
+            <button id="btnAddCatalog" class="btn btn-primary flex-1" onclick="window.addCatalogItem()">Añadir Producto</button>
+            <button id="btnCancelEditCatalog" class="btn btn-secondary flex-1 hidden" onclick="window.cancelEditCatalog()">Cancelar</button>
+          </div>
         </div>
 
         <div class="glass-panel flex-col gap-3">

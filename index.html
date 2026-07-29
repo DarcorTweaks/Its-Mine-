@@ -306,14 +306,18 @@
                 X
             </button>
 
-            <!-- Image Section -->
-            <div style="width: 100%; height: 250px; background: #000; flex-shrink: 0; position: relative;">
-                <img id="modalImg" src="" alt="Producto" style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;">
-            </div>
-            
-            <!-- Thumbnails Gallery -->
-            <div id="modalThumbnails" style="display: none; flex-wrap: wrap; gap: 8px; padding: 12px 24px 0 24px; background: rgba(30,30,30,0.9); justify-content: center;">
-                <!-- Miniaturas dinámicas -->
+            <!-- Image Carousel Section -->
+            <div style="position: relative; width: 100%; flex-shrink: 0; background: #0b0b0b;">
+                <div id="modalImageGallery" style="width: 100%; aspect-ratio: 1/1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                    <!-- Images dynamically injected -->
+                </div>
+                <!-- Pagination Dots -->
+                <div id="modalGalleryDots" style="position: absolute; bottom: 12px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; pointer-events: none;">
+                    <!-- Dots dynamically injected -->
+                </div>
+                
+                <!-- Overlay Gradient for better text readability if needed -->
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(0,0,0,0.5), transparent); pointer-events: none;"></div>
             </div>
 
             <!-- Content Section -->
@@ -666,8 +670,8 @@
                 }
                 
                 card.innerHTML = `
-                    <div style="height: 160px; width: 100%; background: #000; position: relative; flex-shrink: 0;">
-                        <img src="${imgSrc}" alt="${item.name || 'Producto'}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;">
+                    <div style="height: 180px; width: 100%; background: #111; position: relative; flex-shrink: 0; display: flex; justify-content: center; align-items: center;">
+                        <img src="${imgSrc}" alt="${item.name || 'Producto'}" style="width: 100%; height: 100%; object-fit: contain; padding: 8px;">
                         <div style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
                             <span class="text-green font-black">$${validPrice.toFixed(2)}</span>
                         </div>
@@ -697,33 +701,54 @@
             currentModalQty = 1;
             
             const modal = document.getElementById('productModal');
-            let mainImgSrc = item.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMyMzMyMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg==';
-            if (item.imageUrls && item.imageUrls.length > 0) {
-                mainImgSrc = item.imageUrls[0];
-            }
-            document.getElementById('modalImg').src = mainImgSrc;
             
-            // Render Thumbnails if there are multiple images
-            const thumbContainer = document.getElementById('modalThumbnails');
-            if (thumbContainer) {
-                thumbContainer.innerHTML = '';
-                if (item.imageUrls && item.imageUrls.length > 1) {
-                    thumbContainer.style.display = 'flex';
-                    item.imageUrls.forEach((imgB64, idx) => {
-                        const thumb = document.createElement('img');
-                        thumb.src = imgB64;
-                        thumb.className = "w-12 h-12 rounded-md object-cover border-2 cursor-pointer transition-all";
-                        thumb.style.borderColor = idx === 0 ? "#ff69b4" : "transparent";
-                        thumb.onclick = () => {
-                            document.getElementById('modalImg').src = imgB64;
-                            Array.from(thumbContainer.children).forEach(t => t.style.borderColor = "transparent");
-                            thumb.style.borderColor = "#ff69b4";
-                        };
-                        thumbContainer.appendChild(thumb);
-                    });
-                } else {
-                    thumbContainer.style.display = 'none';
+            // Render Carousel
+            const gallery = document.getElementById('modalImageGallery');
+            const dotsContainer = document.getElementById('modalGalleryDots');
+            gallery.innerHTML = '';
+            dotsContainer.innerHTML = '';
+            
+            let images = [];
+            if (item.imageUrls && item.imageUrls.length > 0) {
+                images = item.imageUrls;
+            } else if (item.imageUrl) {
+                images = [item.imageUrl];
+            } else {
+                images = ['data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMyMzMyMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg=='];
+            }
+
+            images.forEach((src, idx) => {
+                // Create Image Slide
+                const slide = document.createElement('div');
+                slide.style.cssText = "flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; background: #000;";
+                
+                const img = document.createElement('img');
+                img.src = src;
+                img.style.cssText = "width: 100%; height: 100%; object-fit: contain;";
+                
+                slide.appendChild(img);
+                gallery.appendChild(slide);
+                
+                // Create Dot
+                if (images.length > 1) {
+                    const dot = document.createElement('div');
+                    dot.style.cssText = `width: 8px; height: 8px; border-radius: 50%; background: ${idx === 0 ? '#ff69b4' : 'rgba(255,255,255,0.4)'}; transition: background 0.3s;`;
+                    dot.id = `dot-${idx}`;
+                    dotsContainer.appendChild(dot);
                 }
+            });
+
+            // Handle Scroll to update dots
+            if (images.length > 1) {
+                gallery.onscroll = () => {
+                    const scrollPos = gallery.scrollLeft;
+                    const width = gallery.clientWidth;
+                    const activeIndex = Math.round(scrollPos / width);
+                    
+                    Array.from(dotsContainer.children).forEach((dot, idx) => {
+                        dot.style.background = idx === activeIndex ? '#ff69b4' : 'rgba(255,255,255,0.4)';
+                    });
+                };
             }
 
             document.getElementById('modalTitle').textContent = item.name;

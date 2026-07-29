@@ -1,5 +1,5 @@
 import { db, storage } from './firebase.js';
-import { collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 import { formatUSD, showToast, createElement } from './utils.js';
 
@@ -7,6 +7,7 @@ let catalogItems = [];
 let rubros = [];
 let categories = [];
 let webServices = [];
+let editingCatalogId = null;
 
 export function startCatalogSync() {
     onSnapshot(collection(db, 'catalogo_publico'), (snapshot) => {
@@ -333,8 +334,12 @@ export async function addCatalogItem() {
             return;
         }
 
-        if (!nameEl.value || !priceEl.value || imageEl.files.length === 0 || !catEl.value) {
-            return showToast("Rellena todos los campos obligatorios y selecciona al menos una foto");
+        if (!nameEl.value || !priceEl.value || !catEl.value) {
+            return showToast("Rellena todos los campos obligatorios");
+        }
+
+        if (!editingCatalogId && imageEl.files.length === 0) {
+            return showToast("Debes seleccionar al menos una foto para el nuevo producto");
         }
 
         if (imageEl.files.length > 5) {
@@ -343,16 +348,18 @@ export async function addCatalogItem() {
 
         btnAdd.disabled = true;
         statusEl.style.display = 'block';
-        statusEl.textContent = 'Procesando imágenes...';
         
         let base64Images = [];
         
         try {
-            const fileArray = Array.from(imageEl.files).slice(0, 5);
-            for (let i = 0; i < fileArray.length; i++) {
-                statusEl.textContent = `Procesando imagen ${i+1} de ${fileArray.length}...`;
-                const b64 = await compressImage(fileArray[i]);
-                base64Images.push(b64);
+            if (imageEl.files.length > 0) {
+                statusEl.textContent = 'Procesando imágenes...';
+                const fileArray = Array.from(imageEl.files).slice(0, 5);
+                for (let i = 0; i < fileArray.length; i++) {
+                    statusEl.textContent = `Procesando imagen ${i+1} de ${fileArray.length}...`;
+                    const b64 = await compressImage(fileArray[i]);
+                    base64Images.push(b64);
+                }
             }
         } catch (imgError) {
             alert("Error al procesar las imágenes: " + imgError.message);
@@ -363,22 +370,33 @@ export async function addCatalogItem() {
             
         statusEl.textContent = 'Guardando en base de datos...';
         
-        // Save to Firestore directly
-        await addDoc(collection(db, 'catalogo_publico'), {
+        const payload = {
             name: nameEl.value,
             price: parseFloat(priceEl.value),
             description: descEl.value,
             category: catEl.value,
             wholesalePrice: wholesalePriceEl.value ? parseFloat(wholesalePriceEl.value) : null,
             wholesaleQty: wholesaleQtyEl.value ? parseInt(wholesaleQtyEl.value) : null,
-            imageUrl: base64Images[0], // Compatibilidad hacia atrás
-            imageUrls: base64Images, // Nuevo formato
-            createdAt: Date.now()
-        });
-
-        showToast("Producto añadido al catálogo");
+        };
+        
+        if (base64Images.length > 0) {
+            payload.imageUrl = base64Images[0];
+            payload.imageUrls = base64Images;
+        }
+        
+        if (editingCatalogId) {
+            // Update
+            await updateDoc(doc(db, 'catalogo_publico', editingCatalogId), payload);
+            showToast("Producto actualizado");
+        } else {
+            // Create
+            payload.createdAt = Date.now();
+            await addDoc(collection(db, 'catalogo_publico'), payload);
+            showToast("Producto añadido al catálogo");
+        }
         
         // Reset form
+        window.cancelEditCatalog();
         nameEl.value = '';
         priceEl.value = '';
         descEl.value = '';
@@ -449,12 +467,76 @@ export function renderCatalogAdmin() {
         info.appendChild(img);
         info.appendChild(textDiv);
         
+        const actionsDiv = createElement('div', 'flex gap-2');
+        
+        const btnEdit = createElement('button', 'btn btn-sm btn-secondary text-white', 'Editar');
+        btnEdit.onclick = () => window.editCatalogItem(item.id);
+        
         const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white hover:bg-red', 'Borrar');
         btnDelete.onclick = () => deleteCatalogItem(item.id);
         
+        actionsDiv.appendChild(btnEdit);
+        actionsDiv.appendChild(btnDelete);
+        
         row.appendChild(info);
-        row.appendChild(btnDelete);
+        row.appendChild(actionsDiv);
         
         list.appendChild(row);
     });
 }
+
+// Window functions for Edit
+window.editCatalogItem = function(id) {
+    const item = catalogItems.find(i => i.id === id);
+    if (!item) return;
+    
+    editingCatalogId = id;
+    
+    document.getElementById('catName').value = item.name || '';
+    document.getElementById('catPrice').value = item.price || '';
+    document.getElementById('catDesc').value = item.description || '';
+    document.getElementById('catCategory').value = item.category || '';
+    document.getElementById('catWholesalePrice').value = item.wholesalePrice || '';
+    document.getElementById('catWholesaleQty').value = item.wholesaleQty || '';
+    
+    // Clear images logic
+    document.getElementById('catImage').value = '';
+    const previewContainer = document.getElementById('catImagePreviewContainer');
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+        previewContainer.classList.add('hidden');
+    }
+    
+    document.getElementById('btnAddCatalog').textContent = 'Actualizar Producto';
+    document.getElementById('btnCancelEditCatalog').classList.remove('hidden');
+    
+    // Scroll up to form
+    document.getElementById('catName').scrollIntoView({ behavior: 'smooth' });
+};
+
+window.cancelEditCatalog = function() {
+    editingCatalogId = null;
+    
+    document.getElementById('catName').value = '';
+    document.getElementById('catPrice').value = '';
+    document.getElementById('catDesc').value = '';
+    document.getElementById('catCategory').value = '';
+    document.getElementById('catWholesalePrice').value = '';
+    document.getElementById('catWholesaleQty').value = '';
+    document.getElementById('catImage').value = '';
+    
+    const previewContainer = document.getElementById('catImagePreviewContainer');
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+        previewContainer.classList.add('hidden');
+    }
+    
+    document.getElementById('btnAddCatalog').textContent = 'Añadir Producto';
+    document.getElementById('btnCancelEditCatalog').classList.add('hidden');
+    
+    const statusEl = document.getElementById('catUploadStatus');
+    if (statusEl) {
+        statusEl.style.display = 'none';
+        document.getElementById('btnAddCatalog').disabled = false;
+    }
+};
