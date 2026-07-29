@@ -435,9 +435,12 @@
             <input type="number" id="catWholesaleQty" class="input-pro text-pink" placeholder="A partir de (cant) (Opcional)">
           </div>
           <div class="flex-col gap-1 mt-2">
-            <label class="text-xxs text-muted uppercase">Foto del producto</label>
-            <input type="file" id="catImage" class="input-pro" accept="image/*" style="padding: 6px;">
-            <img id="catImagePreview" src="" alt="Vista previa" class="w-full h-32 object-cover rounded-md mt-2 hidden border border-white/10">
+            <label class="block text-sm font-bold mb-2">Fotos del Producto (Máx 5) *</label>
+            <input type="file" id="catImage" class="input-pro" accept="image/jpeg, image/png, image/webp" multiple>
+            <p class="text-xxs text-muted mt-1">Sube hasta 5 fotos. La primera será la portada.</p>
+            <div id="catImagePreviewContainer" class="flex flex-wrap gap-2 hidden mt-2">
+                <!-- Thumbnails will be injected here -->
+            </div>
             <p id="catUploadStatus" class="text-xs text-yellow mt-1 hidden">Subiendo imagen...</p>
           </div>
           <button id="btnAddCatalog" class="btn btn-primary mt-2" onclick="window.addCatalogItem()">Añadir Producto</button>
@@ -647,18 +650,31 @@
     document.getElementById('btnAddWebSvc')?.addEventListener('click', addWebSvc);
 
     document.getElementById('catImage')?.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        const preview = document.getElementById('catImagePreview');
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                preview.src = e.target.result;
-                preview.classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
+        const files = e.target.files;
+        const previewContainer = document.getElementById('catImagePreviewContainer');
+        previewContainer.innerHTML = '';
+        
+        if (files && files.length > 0) {
+            if (files.length > 5) {
+                alert("Solo puedes subir un máximo de 5 fotos. Se seleccionarán las primeras 5.");
+            }
+            
+            previewContainer.classList.remove('hidden');
+            const fileArray = Array.from(files).slice(0, 5);
+            
+            fileArray.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = "w-16 h-16 object-cover rounded-md border border-white/20";
+                    if(index === 0) img.style.border = "2px solid #ff69b4";
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
         } else {
-            preview.src = '';
-            preview.classList.add('hidden');
+            previewContainer.classList.add('hidden');
         }
     });
     document.getElementById('btnAddExtraItem')?.addEventListener('click', addExtraToCalc);

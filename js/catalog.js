@@ -120,8 +120,9 @@ function compressImage(file) {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                const MAX_HEIGHT = 800;
+                // Reducimos el tamaño máximo a 600 para que 5 fotos pesen menos
+                const MAX_WIDTH = 600;
+                const MAX_HEIGHT = 600;
                 let width = img.width;
                 let height = img.height;
 
@@ -332,25 +333,29 @@ export async function addCatalogItem() {
             return;
         }
 
-        if (!nameEl.value || !priceEl.value || !descEl.value || !catEl.value) {
-            return showToast("Completa los datos y selecciona una categoría");
+        if (!nameEl.value || !priceEl.value || imageEl.files.length === 0 || !catEl.value) {
+            return showToast("Rellena todos los campos obligatorios y selecciona al menos una foto");
         }
 
-        if (!imageEl.files || imageEl.files.length === 0) {
-            return showToast("Debes seleccionar una imagen");
+        if (imageEl.files.length > 5) {
+            return showToast("Solo puedes subir un máximo de 5 fotos por producto");
         }
 
-        const file = imageEl.files[0];
-        
         btnAdd.disabled = true;
         statusEl.style.display = 'block';
-        statusEl.textContent = 'Procesando imagen...';
+        statusEl.textContent = 'Procesando imágenes...';
         
-        let base64Image = '';
+        let base64Images = [];
+        
         try {
-            base64Image = await compressImage(file);
+            const fileArray = Array.from(imageEl.files).slice(0, 5);
+            for (let i = 0; i < fileArray.length; i++) {
+                statusEl.textContent = `Procesando imagen ${i+1} de ${fileArray.length}...`;
+                const b64 = await compressImage(fileArray[i]);
+                base64Images.push(b64);
+            }
         } catch (imgError) {
-            alert("Error al procesar la imagen: " + imgError.message);
+            alert("Error al procesar las imágenes: " + imgError.message);
             btnAdd.disabled = false;
             statusEl.style.display = 'none';
             return;
@@ -366,7 +371,8 @@ export async function addCatalogItem() {
             category: catEl.value,
             wholesalePrice: wholesalePriceEl.value ? parseFloat(wholesalePriceEl.value) : null,
             wholesaleQty: wholesaleQtyEl.value ? parseInt(wholesaleQtyEl.value) : null,
-            imageUrl: base64Image,
+            imageUrl: base64Images[0], // Compatibilidad hacia atrás
+            imageUrls: base64Images, // Nuevo formato
             createdAt: Date.now()
         });
 
@@ -380,7 +386,12 @@ export async function addCatalogItem() {
         catEl.value = '';
         if(wholesalePriceEl) wholesalePriceEl.value = '';
         if(wholesaleQtyEl) wholesaleQtyEl.value = '';
-        document.getElementById('catImagePreview').classList.add('hidden');
+        
+        const previewContainer = document.getElementById('catImagePreviewContainer');
+        if (previewContainer) {
+            previewContainer.innerHTML = '';
+            previewContainer.classList.add('hidden');
+        }
         
         btnAdd.disabled = false;
         statusEl.style.display = 'none';
@@ -423,7 +434,7 @@ export function renderCatalogAdmin() {
         
         const info = createElement('div', 'flex gap-3 items-center');
         const img = createElement('img', 'w-12 h-12 rounded-lg object-cover bg-black');
-        img.src = item.imageUrl;
+        img.src = (item.imageUrls && item.imageUrls.length > 0) ? item.imageUrls[0] : (item.imageUrl || '');
         img.alt = item.name;
         
         const textDiv = createElement('div', 'flex-col');
