@@ -5,9 +5,12 @@ import { formatUSD, showToast, createElement } from './utils.js';
 
 let catalogItems = [];
 let rubros = [];
+let catalogItems = [];
+let rubros = [];
 let categories = [];
 let webServices = [];
 let editingCatalogId = null;
+let editingWebSvcId = null;
 
 export function startCatalogSync() {
     onSnapshot(collection(db, 'catalogo_publico'), (snapshot) => {
@@ -245,33 +248,61 @@ export function renderCategoriesAdmin() {
 
 export async function addWebSvc() {
     const nameEl = document.getElementById('webSvcName');
-    const emojiEl = document.getElementById('webSvcEmoji');
     const priceEl = document.getElementById('webSvcPrice');
     const descEl = document.getElementById('webSvcDesc');
+    const imageEl = document.getElementById('webSvcImage');
     const btnAdd = document.getElementById('btnAddWebSvc');
+    const statusEl = document.getElementById('webSvcUploadStatus');
     
-    if (!nameEl.value || !emojiEl.value || !priceEl.value || !descEl.value) {
+    if (!nameEl.value || !priceEl.value || !descEl.value) {
         return showToast("Completa todos los campos");
+    }
+
+    if (!editingWebSvcId && imageEl.files.length === 0) {
+        return showToast("Debes seleccionar una foto para el servicio");
     }
     
     btnAdd.disabled = true;
+    statusEl.style.display = 'block';
+    
+    let base64Image = null;
     try {
-        await addDoc(collection(db, 'servicios_publico'), {
-            name: nameEl.value,
-            emoji: emojiEl.value,
-            basePrice: parseFloat(priceEl.value),
-            description: descEl.value,
-            createdAt: Date.now()
-        });
-        showToast("Servicio añadido a la web");
-        nameEl.value = '';
-        emojiEl.value = '';
-        priceEl.value = '';
-        descEl.value = '';
+        if (imageEl.files.length > 0) {
+            statusEl.textContent = 'Procesando imagen...';
+            base64Image = await compressImage(imageEl.files[0]);
+        }
     } catch (e) {
-        showToast("Error al añadir servicio");
-    } finally {
+        showToast("Error al procesar la imagen");
         btnAdd.disabled = false;
+        statusEl.style.display = 'none';
+        return;
+    }
+
+    statusEl.textContent = 'Guardando...';
+
+    const payload = {
+        name: nameEl.value,
+        basePrice: parseFloat(priceEl.value),
+        description: descEl.value,
+    };
+    if (base64Image) {
+        payload.imageUrl = base64Image;
+    }
+    
+    try {
+        if (editingWebSvcId) {
+            await updateDoc(doc(db, 'servicios_publico', editingWebSvcId), payload);
+            showToast("Servicio actualizado");
+        } else {
+            payload.createdAt = Date.now();
+            await addDoc(collection(db, 'servicios_publico'), payload);
+            showToast("Servicio añadido a la web");
+        }
+        window.cancelEditWebSvc();
+    } catch (e) {
+        showToast("Error al procesar servicio");
+        btnAdd.disabled = false;
+        statusEl.style.display = 'none';
     }
 }
 
@@ -300,21 +331,71 @@ export function renderWebSvcAdmin() {
     webServices.sort((a, b) => b.createdAt - a.createdAt).forEach(item => {
         const row = createElement('div', 'flex justify-between items-center bg-white/5 p-2 rounded-xl border border-white/5 mb-2');
         
-        const infoDiv = createElement('div', 'flex-col');
-        const nameP = createElement('p', 'text-sm font-bold text-white', `${item.emoji} ${item.name}`);
-        const detailsP = createElement('p', 'text-xxs text-muted', `Desde $${item.basePrice.toFixed(2)} - ${item.description}`);
+        const infoDiv = createElement('div', 'flex gap-3 items-center');
+        const img = createElement('img', 'w-10 h-10 rounded-md object-cover bg-black');
+        img.src = item.imageUrl || '';
         
-        infoDiv.appendChild(nameP);
-        infoDiv.appendChild(detailsP);
+        const textDiv = createElement('div', 'flex-col');
+        const nameP = createElement('p', 'text-sm font-bold text-white', item.name);
+        const detailsP = createElement('p', 'text-xxs text-muted', `Desde $${(item.basePrice || 0).toFixed(2)} - ${item.description}`);
         
+        textDiv.appendChild(nameP);
+        textDiv.appendChild(detailsP);
+        
+        infoDiv.appendChild(img);
+        infoDiv.appendChild(textDiv);
+        
+        const actionsDiv = createElement('div', 'flex gap-2');
+        const btnEdit = createElement('button', 'btn btn-sm btn-secondary text-white', 'Editar');
+        btnEdit.onclick = () => window.editWebSvc(item.id);
         const btnDelete = createElement('button', 'btn btn-sm btn-ghost text-red hover:text-white', 'X');
         btnDelete.onclick = () => deleteWebSvc(item.id);
         
+        actionsDiv.appendChild(btnEdit);
+        actionsDiv.appendChild(btnDelete);
+        
         row.appendChild(infoDiv);
-        row.appendChild(btnDelete);
+        row.appendChild(actionsDiv);
         list.appendChild(row);
     });
 }
+
+window.editWebSvc = function(id) {
+    const item = webServices.find(i => i.id === id);
+    if (!item) return;
+    
+    editingWebSvcId = id;
+    
+    document.getElementById('webSvcName').value = item.name || '';
+    document.getElementById('webSvcPrice').value = item.basePrice || '';
+    document.getElementById('webSvcDesc').value = item.description || '';
+    
+    document.getElementById('webSvcImage').value = '';
+    const preview = document.getElementById('webSvcImagePreview');
+    if (item.imageUrl) {
+        preview.src = item.imageUrl;
+        preview.classList.remove('hidden');
+    } else {
+        preview.classList.add('hidden');
+    }
+    
+    document.getElementById('btnAddWebSvc').textContent = 'Actualizar Servicio';
+    document.getElementById('btnCancelEditWebSvc').classList.remove('hidden');
+};
+
+window.cancelEditWebSvc = function() {
+    editingWebSvcId = null;
+    document.getElementById('webSvcName').value = '';
+    document.getElementById('webSvcPrice').value = '';
+    document.getElementById('webSvcDesc').value = '';
+    document.getElementById('webSvcImage').value = '';
+    document.getElementById('webSvcImagePreview').classList.add('hidden');
+    
+    document.getElementById('btnAddWebSvc').textContent = 'Añadir Servicio Público';
+    document.getElementById('btnAddWebSvc').disabled = false;
+    document.getElementById('btnCancelEditWebSvc').classList.add('hidden');
+    document.getElementById('webSvcUploadStatus').style.display = 'none';
+};
 
 
 export async function addCatalogItem() {

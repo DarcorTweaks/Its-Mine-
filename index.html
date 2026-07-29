@@ -466,11 +466,17 @@
                 card.className = 'service-card scroll-reveal';
                 card.style.transitionDelay = `${delay}s`;
                 
+                const imgSrc = cat.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMyMzMyMiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1zaXplPSIyMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg==';
+                
                 card.innerHTML = `
-                    <span class="service-icon">${cat.emoji || '✨'}</span>
-                    <h3 class="heading-sm mb-2">${cat.name}</h3>
-                    <p class="text-muted text-sm mb-4 flex-grow">${cat.description || ''}</p>
-                    <div class="text-pink font-bold text-sm">${cat.basePrice ? 'Desde $' + cat.basePrice : 'Consultar'}</div>
+                    <div style="height: 140px; width: 100%; position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 12px;">
+                        <img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1);">
+                            <span class="text-green font-black text-sm">${cat.basePrice ? 'Desde $' + cat.basePrice : 'Consultar'}</span>
+                        </div>
+                    </div>
+                    <h3 class="heading-sm mb-2" style="font-size: 18px;">${cat.name}</h3>
+                    <p class="text-muted text-sm mb-2 flex-grow">${cat.description || ''}</p>
                 `;
                 grid.appendChild(card);
             });
